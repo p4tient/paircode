@@ -5,9 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paircode</title>
 <meta name="description" content="Answer dating questions, get a short public code, compare codes for compatibility. Open source, nothing collected.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#F2F3F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1120" media="(prefers-color-scheme: dark)">
 <style>
 /* Layout: one narrow column under a sticky brand bar; views swap in place; the code "ticket" is the app's hero object. */
 :root {
@@ -182,6 +185,14 @@ p { margin: 0; }
 .talk li { font-weight: 600; }
 .talk li span { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
 
+.rank { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.rank li { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.rank-pct { font: 800 20px/1 var(--display); font-variant-numeric: tabular-nums; }
+.rank-main { min-width: 0; }
+.rank-label { font-weight: 600; overflow-wrap: anywhere; }
+.res-img { width: 100%; max-width: 420px; border-radius: 14px; border: 1px solid var(--line); display: block; }
+.foot .actions { gap: 8px; }
+
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bar); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
 .dock-count { font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -267,7 +278,7 @@ details.okset > summary::-webkit-details-marker { display: none; }
 <div class="dock" id="dock" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="qrcode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function () {
@@ -336,6 +347,16 @@ var UI = {
     unknownNote: "{n} answers come from a newer question list and weren't counted. Reload the page.",
     insideTitle: "What's in this code", insideMeta: '{n} answers',
     yourDeal: 'Your dealbreaker', theirDeal: 'Their dealbreaker',
+    cmpOne: 'One code', cmpMany: 'Many codes',
+    manyLabel: 'Paste codes, links or a whole comment section', rankBtn: 'Rank them',
+    manyFound: '{n} codes found', manyNone: 'No valid codes found in that text.', needMine: 'Add your own code first.',
+    details: 'Details', sharedShort: '{n} shared', dealShort: '{n} dealbreakers',
+    copyResult: 'Copy result', makeImage: 'Make an image',
+    resultText: 'Paircode: {pct}% match on {n} shared questions.\nCompare with me: {link}',
+    imageHint: 'Long-press or right-click the image to save it.',
+    suggestQ: 'Suggest a question', installApp: 'Install app',
+    issueTitle: 'Question idea: ',
+    issueBody: "**Question:**\n\n**Options (2 to 4):**\n1. \n2. \n3. \n4. \n\n**Pack:** must-knows / three odd ones / lifestyle / dating / together / privacy and trust / beliefs / hot takes\n\n**Why it's telling:**\n",
     pickAll: 'Pick all that apply',
     quickStart: 'Quick start · {n} questions', allQ: 'All {n} questions', quickTitle: 'Quick version',
     modeQuick: 'Quick · {n}', modeAll: 'All · {n}',
@@ -395,6 +416,16 @@ var UI = {
     unknownNote: 'Відповідей з новішого списку питань: {n}. Їх не враховано. Онови сторінку.',
     insideTitle: 'Що в цьому коді', insideMeta: 'Відповідей: {n}',
     yourDeal: 'Принципово для тебе', theirDeal: 'Принципово для іншої людини',
+    cmpOne: 'Один код', cmpMany: 'Багато кодів',
+    manyLabel: 'Встав коди, посилання або цілий розділ коментарів', rankBtn: 'Порівняти всіх',
+    manyFound: 'Знайдено кодів: {n}', manyNone: 'У цьому тексті немає дійсних кодів.', needMine: 'Спершу додай свій код.',
+    details: 'Детальніше', sharedShort: 'спільних: {n}', dealShort: 'принципових: {n}',
+    copyResult: 'Скопіювати результат', makeImage: 'Зробити картинку',
+    resultText: 'Paircode: збіг {pct}% за {n} спільними питаннями.\nПорівняй зі мною: {link}',
+    imageHint: 'Утримуй або клацни правою кнопкою, щоб зберегти.',
+    suggestQ: 'Запропонувати питання', installApp: 'Встановити застосунок',
+    issueTitle: 'Ідея питання: ',
+    issueBody: '**Питання:**\n\n**Варіанти (від 2 до 4):**\n1. \n2. \n3. \n4. \n\n**Розділ:** головне / три дивні / спосіб життя / побачення / разом / довіра / погляди / гарячі теми\n\n**Чому воно показове:**\n',
     pickAll: 'Можна обрати кілька',
     quickStart: 'Швидкий старт · {n} питань', allQ: 'Усі питання ({n})', quickTitle: 'Швидка версія',
     modeQuick: 'Швидко · {n}', modeAll: 'Усі · {n}',
@@ -454,6 +485,16 @@ var UI = {
     unknownNote: 'Odpowiedzi z nowszej listy pytań: {n}. Nie zostały uwzględnione. Odśwież stronę.',
     insideTitle: 'Co jest w tym kodzie', insideMeta: 'Odpowiedzi: {n}',
     yourDeal: 'Twój warunek konieczny', theirDeal: 'Warunek drugiej osoby',
+    cmpOne: 'Jeden kod', cmpMany: 'Wiele kodów',
+    manyLabel: 'Wklej kody, linki albo całą sekcję komentarzy', rankBtn: 'Porównaj wszystkich',
+    manyFound: 'Znalezione kody: {n}', manyNone: 'W tym tekście nie ma prawidłowych kodów.', needMine: 'Najpierw dodaj swój kod.',
+    details: 'Szczegóły', sharedShort: 'wspólnych: {n}', dealShort: 'warunków: {n}',
+    copyResult: 'Kopiuj wynik', makeImage: 'Zrób obrazek',
+    resultText: 'Paircode: {pct}% dopasowania na {n} wspólnych pytaniach.\nPorównaj się ze mną: {link}',
+    imageHint: 'Przytrzymaj lub kliknij prawym przyciskiem, aby zapisać.',
+    suggestQ: 'Zaproponuj pytanie', installApp: 'Zainstaluj aplikację',
+    issueTitle: 'Pomysł na pytanie: ',
+    issueBody: '**Pytanie:**\n\n**Odpowiedzi (od 2 do 4):**\n1. \n2. \n3. \n4. \n\n**Sekcja:** najważniejsze / trzy dziwne / styl życia / randki / razem / zaufanie / poglądy / gorące tematy\n\n**Dlaczego to dużo mówi:**\n',
     pickAll: 'Możesz wybrać kilka',
     quickStart: 'Szybki start · {n} pytań', allQ: 'Wszystkie pytania ({n})', quickTitle: 'Szybka wersja',
     modeQuick: 'Szybko · {n}', modeAll: 'Wszystkie · {n}',
@@ -714,7 +755,8 @@ var view = 'home';
 var openPacks = new Set(['core']);
 var quizMode = 'quick';
 function quickCount() { return ACTIVE.filter(function (q) { return q.quick && !q.showIf; }).length; }
-var cmp = { theirs: '', mine: '', mode: '', error: '', result: null, single: null };
+var cmp = { view: 'one', theirs: '', mine: '', mineCode: '', mode: '', error: '', result: null, single: null, manyText: '', many: null };
+var installEvt = null;
 
 function baseLink() { return SHARE_BASE || location.href.split('#')[0]; }
 function shareLink(code) { return baseLink() + '#' + code; }
@@ -757,10 +799,17 @@ function renderChrome() {
   var qHref = REPO_URL ? REPO_URL.replace(/\/$/, '') + '/blob/main/questions.js' : 'questions.js';
   $('#foot').innerHTML =
     '<details class="how"><summary>' + esc(t('howTitle')) + '</summary><p>' + esc(t('howBody')) + '</p></details>' +
-    '<p class="small muted">' + esc(t('footerOpen')) + ' <a href="' + esc(qHref) + '" target="_blank" rel="noopener">questions.js</a>. ' + esc(t('footerCount', { n: ACTIVE.length })) + '</p>';
+    '<p class="small muted">' + esc(t('footerOpen')) + ' <a href="' + esc(qHref) + '" target="_blank" rel="noopener">questions.js</a>. ' + esc(t('footerCount', { n: ACTIVE.length })) + '</p>' +
+    ((REPO_URL || installEvt) ? '<div class="actions">' +
+      (REPO_URL ? '<a class="btn small ghost" href="' + esc(issueUrl()) + '" target="_blank" rel="noopener">' + esc(t('suggestQ')) + '</a>' : '') +
+      (installEvt ? '<button type="button" class="btn small ghost" data-act="install">' + esc(t('installApp')) + '</button>' : '') +
+    '</div>' : '');
 }
 
 /* ---------- Home ---------- */
+function issueUrl() {
+  return REPO_URL.replace(/\/$/, '') + '/issues/new?title=' + encodeURIComponent(t('issueTitle')) + '&body=' + encodeURIComponent(t('issueBody'));
+}
 function renderHome() {
   var n = publicAnswers().size;
   var sample = ['ok','ok','half','ok','ok','bad','ok','ok','half','ok','ok','ok','half','bad'];
@@ -958,21 +1007,81 @@ function drawQR(link) {
 /* ---------- Compare ---------- */
 function renderCompare() {
   if (!cmp.mine) cmp.mine = myCode();
+  var many = cmp.view === 'many';
   var h = '<h2>' + esc(t('cmpTitle')) + '</h2>' +
-    '<div class="field"><label for="theirs">' + esc(t('theirLabel')) + '</label>' +
-      '<textarea id="theirs" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(cmp.theirs) + '</textarea></div>' +
-    '<div class="field"><label for="mine">' + esc(t('mineLabel')) + '</label>' +
+    '<div class="modes" role="group">' +
+      '<button type="button" data-act="cmpview" data-view="one" aria-pressed="' + !many + '">' + esc(t('cmpOne')) + '</button>' +
+      '<button type="button" data-act="cmpview" data-view="many" aria-pressed="' + many + '">' + esc(t('cmpMany')) + '</button>' +
+    '</div>';
+  if (many) {
+    h += '<div class="field"><label for="manyText">' + esc(t('manyLabel')) + '</label>' +
+      '<textarea id="manyText" rows="6" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(cmp.manyText) + '</textarea></div>';
+  } else {
+    h += '<div class="field"><label for="theirs">' + esc(t('theirLabel')) + '</label>' +
+      '<textarea id="theirs" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(cmp.theirs) + '</textarea></div>';
+  }
+  h += '<div class="field"><label for="mine">' + esc(t('mineLabel')) + '</label>' +
       '<textarea id="mine" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(cmp.mine) + '</textarea>' +
       '<p class="hint">' + esc(t('mineHint')) + '</p></div>' +
-    '<div class="actions">' +
-      '<button type="button" class="btn primary" data-act="cmp">' + esc(t('cmpBtn')) + '</button>' +
-      '<button type="button" class="btn ghost" data-act="inside">' + esc(t('viewBtn')) + '</button>' +
+    '<div class="actions">' + (many
+      ? '<button type="button" class="btn primary" data-act="many">' + esc(t('rankBtn')) + '</button>'
+      : '<button type="button" class="btn primary" data-act="cmp">' + esc(t('cmpBtn')) + '</button>' +
+        '<button type="button" class="btn ghost" data-act="inside">' + esc(t('viewBtn')) + '</button>') +
     '</div>';
   if (!myCode()) h += '<p class="small muted">' + esc(t('noCodeYet')) + ' <button type="button" class="linkbtn" data-go="quiz">' + esc(t('makeOne')) + '</button></p>';
   if (cmp.error) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(cmp.error) + '</div></div>';
-  if (cmp.mode === 'cmp' && cmp.result) h += resultHTML(cmp.result);
-  if (cmp.mode === 'inside' && cmp.single) h += insideHTML(cmp.single);
+  if (many) { if (cmp.many) h += manyHTML(cmp.many); }
+  else {
+    if (cmp.mode === 'cmp' && cmp.result) h += resultHTML(cmp.result);
+    if (cmp.mode === 'inside' && cmp.single) h += insideHTML(cmp.single);
+  }
   $('#v-compare').innerHTML = h;
+}
+/* Finds every valid code in pasted text (a Threads comment section, a list of links...).
+   The label is the nearest username-looking line above the code, if there is one. */
+var NOT_NAMES = ['reply', 'replies', 'translate', 'author', 'follow', 'like', 'likes', 'repost', 'share', 'top', 'view', 'activity', 'more', 'edited', 'pinned'];
+function extractCodes(text) {
+  var lines = String(text || '').split(/\r?\n/);
+  var found = new Map();
+  lines.forEach(function (line, li) {
+    var cands = [], m, re = /#([0-9A-Za-z]+)/g;
+    while ((m = re.exec(line))) cands.push(m[1]);
+    (line.match(/[0-9A-Za-z]{6,}/g) || []).forEach(function (x) { cands.push(x); });
+    cands.forEach(function (c) {
+      if (found.has(c)) return;
+      var d = decode(c);
+      if (!d.map) return;
+      var label = '';
+      for (var k = li; k >= Math.max(0, li - 4) && !label; k--) {
+        var u = lines[k].trim().match(/^@?([a-z0-9._]{3,30})$/);
+        if (u && /[a-z]/.test(u[1]) && !/^\d+[smhdw]$/.test(u[1]) && NOT_NAMES.indexOf(u[1]) < 0) label = '@' + u[1];
+      }
+      found.set(c, { code: c, map: d.map, label: label });
+    });
+  });
+  return Array.from(found.values());
+}
+function runMany() {
+  cmp.error = ''; cmp.many = null;
+  if (!cmp.mine.trim()) { cmp.error = t('needMine'); return; }
+  var A = parseCode(cmp.mine);
+  if (A.err) { cmp.error = t('mineLabel') + ': ' + errText(A.err); return; }
+  cmp.mineCode = A.code;
+  var found = extractCodes(cmp.manyText).filter(function (f) { return f.code !== A.code; });
+  if (!found.length) { cmp.error = t('manyNone'); return; }
+  function key(e) { return e.res.n >= MIN_SHARED ? e.res.score : -1; }
+  cmp.many = found.map(function (f) { return { code: f.code, label: f.label, res: compareMaps(A.map, f.map) }; })
+    .sort(function (x, y) { return key(y) - key(x) || y.res.n - x.res.n; });
+}
+function manyHTML(list) {
+  return '<div class="result"><p class="small muted">' + esc(t('manyFound', { n: list.length })) + '</p><ol class="rank">' + list.map(function (e) {
+    var deal = e.res.items.filter(function (it) { return it.status === 'deal'; }).length;
+    var pct = e.res.n >= MIN_SHARED ? Math.round(e.res.score * 100) + '%' : '—';
+    var meta = t('sharedShort', { n: e.res.n }) + (deal ? ' · ' + t('dealShort', { n: deal }) : '');
+    return '<li><span class="rank-pct">' + esc(pct) + '</span><div class="rank-main"><div class="rank-label">' + esc(e.label || e.code.slice(0, 10) + '…') + '</div>' +
+      '<div class="small muted">' + esc(meta) + '</div></div>' +
+      '<button type="button" class="btn small ghost" data-act="many-open" data-code="' + esc(e.code) + '">' + esc(t('details')) + '</button></li>';
+  }).join('') + '</ol></div>';
 }
 function errText(e) { return e === 'newer' ? t('errNewer') : e === 'empty' ? t('errTheirs') : t('errInvalid'); }
 function runCompare() {
@@ -982,6 +1091,7 @@ function runCompare() {
   if (B.err) { cmp.error = t('theirLabel') + ': ' + errText(B.err); return; }
   if (A.err) { cmp.error = t('mineLabel') + ': ' + errText(A.err); return; }
   if (A.code === B.code) { cmp.error = t('sameCode'); return; }
+  cmp.mineCode = A.code;
   cmp.result = compareMaps(A.map, B.map);
 }
 function runInside() {
@@ -999,7 +1109,9 @@ function resultHTML(res) {
   var h = '<div class="result">';
   if (res.n >= MIN_SHARED) {
     h += '<div class="score-row"><div class="score">' + Math.round(res.score * 100) + '<span>%</span></div>' +
-         '<div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: res.n })) + '</div></div></div>';
+         '<div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: res.n })) + '</div></div></div>' +
+         '<div class="actions"><button type="button" class="btn small ghost" data-act="copy-result">' + esc(t('copyResult')) + '</button>' +
+         '<button type="button" class="btn small ghost" data-act="make-image">' + esc(t('makeImage')) + '</button></div><div id="resImg"></div>';
   } else {
     h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('tooFew', { n: res.n, min: MIN_SHARED })) + '</div></div>';
   }
@@ -1051,6 +1163,57 @@ function insideHTML(map) {
   return '<div class="result"><h3>' + esc(t('insideTitle')) + '</h3><p class="muted small">' + esc(t('insideMeta', { n: map.size })) + '</p>' +
     (unknown ? '<p class="small muted">' + esc(t('unknownNote', { n: unknown })) + '</p>' : '') +
     '<div class="list">' + rows + '</div></div>';
+}
+
+/* ---------- Result image (drawn locally on a canvas, no answers shown) ---------- */
+function roundRect(g, x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function makeResultImage(res) {
+  var ready = (document.fonts && document.fonts.load)
+    ? Promise.all(['800 100px "Unbounded"', '600 30px "Onest"', '400 30px "Onest"'].map(function (f) { return document.fonts.load(f); })).catch(function () {})
+    : Promise.resolve();
+  return ready.then(function () {
+    var W = 1080, H = 1080, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    var g = cv.getContext('2d');
+    var C = { bg: '#F2F3F7', card: '#FFFFFF', ink: '#141828', muted: '#5B6178', accent: '#2D47D6', ok: '#17845A', half: '#A2660A', bad: '#C43737' };
+    var D = '"Unbounded", "Onest", system-ui, sans-serif', B = '"Onest", system-ui, sans-serif';
+    g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
+    roundRect(g, 60, 60, W - 120, H - 120, 48); g.fillStyle = C.card; g.fill();
+    var u = 3, lx = 120, ly = 120;
+    roundRect(g, lx + u, ly + u, 13 * u, 13 * u, 3.5 * u); g.fillStyle = C.accent; g.fill();
+    roundRect(g, lx + 8 * u, ly + 8 * u, 13 * u, 13 * u, 3.5 * u); g.lineWidth = 2 * u; g.strokeStyle = C.ink; g.stroke();
+    g.textBaseline = 'middle'; g.fillStyle = C.ink; g.font = '800 40px ' + D; g.fillText('Paircode', lx + 22 * u + 20, ly + 11 * u);
+    g.textBaseline = 'alphabetic';
+    var pct = String(Math.round(res.score * 100));
+    g.font = '800 240px ' + D; g.fillStyle = C.ink; g.fillText(pct, 112, 460);
+    var pw = g.measureText(pct).width;
+    g.font = '800 96px ' + D; g.fillStyle = C.muted; g.fillText('%', 112 + pw + 14, 460);
+    g.font = '600 30px ' + B; g.fillStyle = C.muted; g.fillText(t('matchLabel').toUpperCase(), 120, 530);
+    g.font = '400 36px ' + B; g.fillStyle = C.ink; g.fillText(t('comparedOn', { n: res.n }), 120, 580);
+    var order = displayOrder();
+    var col = { ok: C.ok, half: C.half, bad: C.bad, deal: C.bad };
+    var cs = 34, gap = 10, x = 120, y = 630;
+    res.items.slice().sort(function (a, b) { return order.get(a.q.id) - order.get(b.q.id); }).forEach(function (it) {
+      if (x + cs > W - 120) { x = 120; y += cs + gap; }
+      roundRect(g, x, y, cs, cs, 8); g.fillStyle = col[it.status]; g.fill();
+      if (it.status === 'deal') { roundRect(g, x + 3, y + 3, cs - 6, cs - 6, 6); g.lineWidth = 5; g.strokeStyle = C.ink; g.stroke(); }
+      x += cs + gap;
+    });
+    var c = { ok: 0, half: 0, bad: 0, deal: 0 };
+    res.items.forEach(function (it) { c[it.status]++; });
+    var cy = Math.max(y + cs + 70, 820);
+    [['ok', 'cntOk'], ['half', 'cntHalf'], ['bad', 'cntBad'], ['deal', 'cntDeal']].forEach(function (k, i) {
+      var cx = 120 + (i % 2) * 430, yy = cy + Math.floor(i / 2) * 52;
+      roundRect(g, cx, yy - 25, 24, 24, 6); g.fillStyle = col[k[0]]; g.fill();
+      g.font = '400 32px ' + B; g.fillStyle = C.ink; g.fillText(t(k[1]) + '  ' + c[k[0]], cx + 38, yy);
+    });
+    g.font = '600 32px ' + B; g.fillStyle = C.accent;
+    g.fillText(baseLink().replace(/^https?:\/\//, '').replace(/[?#].*$/, '').replace(/\/(index\.html)?$/, ''), 120, H - 112);
+    return cv.toDataURL('image/png');
+  });
 }
 
 /* ---------- Copy + toast ---------- */
@@ -1113,11 +1276,36 @@ document.addEventListener('click', function (ev) {
     show('quiz'); return;
   }
   if (act === 'cmp') { runCompare(); renderCompare(); return; }
+  if (act === 'cmpview') { cmp.view = el.dataset.view === 'many' ? 'many' : 'one'; cmp.error = ''; renderCompare(); return; }
+  if (act === 'many') { runMany(); renderCompare(); return; }
+  if (act === 'many-open') {
+    cmp.view = 'one'; cmp.theirs = el.dataset.code; runCompare(); renderCompare();
+    var rr = $('#v-compare .result'); if (rr && rr.scrollIntoView) rr.scrollIntoView({ block: 'start' });
+    return;
+  }
+  if (act === 'copy-result' && cmp.result) {
+    copy(t('resultText', { pct: Math.round(cmp.result.score * 100), n: cmp.result.n, link: shareLink(cmp.mineCode) }));
+    return;
+  }
+  if (act === 'make-image' && cmp.result) {
+    makeResultImage(cmp.result).then(function (url) {
+      var box = $('#resImg');
+      if (box) box.innerHTML = '<img class="res-img" alt="' + esc(t('matchLabel')) + ' ' + Math.round(cmp.result.score * 100) + '%" src="' + url + '"><p class="hint">' + esc(t('imageHint')) + '</p>';
+    });
+    return;
+  }
+  if (act === 'install' && installEvt) {
+    var ev2 = installEvt; installEvt = null;
+    try { ev2.prompt(); } catch (e) { /* ignore */ }
+    renderChrome();
+    return;
+  }
   if (act === 'inside') { runInside(); renderCompare(); return; }
 });
 document.addEventListener('input', function (ev) {
   if (ev.target.id === 'theirs') cmp.theirs = ev.target.value;
   if (ev.target.id === 'mine') cmp.mine = ev.target.value;
+  if (ev.target.id === 'manyText') cmp.manyText = ev.target.value;
 });
 document.addEventListener('toggle', function (ev) {
   var d = ev.target;
@@ -1128,13 +1316,15 @@ function readHash() {
   var h = '';
   try { h = decodeURIComponent(location.hash.slice(1)); } catch (e) { h = location.hash.slice(1); }
   if (!h) return false;
-  cmp.theirs = h;
+  cmp.theirs = h; cmp.view = 'one';
   if (!cmp.mine) cmp.mine = myCode();
   if (cmp.mine && cmp.mine !== h) runCompare(); else runInside();
   show('compare');
   return true;
 }
 window.addEventListener('hashchange', readHash);
+window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); installEvt = e; renderChrome(); });
+window.addEventListener('appinstalled', function () { installEvt = null; renderChrome(); });
 
 /* ================= Start ================= */
 loadData();
@@ -1149,8 +1339,14 @@ quizMode = storeGet(STORE.mode) === 'all' ? 'all' : 'quick';
 if (!readHash()) show('home');
 
 /* exposed for testing and for anyone curious in the browser console */
-window.Paircode = { encode: encode, decode: decode, parseCode: parseCode, compareMaps: compareMaps, crc8: crc8, errors: errors, questions: ACTIVE, weights: WEIGHTS };
+window.Paircode = { encode: encode, decode: decode, parseCode: parseCode, compareMaps: compareMaps, extractCodes: extractCodes, crc8: crc8, errors: errors, questions: ACTIVE, weights: WEIGHTS };
 })();
+</script>
+<script>
+/* offline support; see sw.js */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('sw.js').catch(function () {});
+}
 </script>
 </body>
 </html>

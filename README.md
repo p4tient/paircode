@@ -2,24 +2,37 @@
 
 Answer dating questions, get a short code, post it. Anyone can compare their code with yours, question by question, and both people see the same result. Interface in Ukrainian, Polish and English.
 
-Two files do everything: `index.html` (the app) and `questions.js` (the question list). No server, no build step, no accounts.
+Live: https://p4tient.github.io/paircode/
+
+`index.html` (the app) and `questions.js` (the question list) do the work. Everything else is fonts, icons and offline support. No server, no build step, no accounts.
+
+## Features
+
+- **Quick version** of 10 questions, or all of them in packs. Every question can be skipped.
+- **Several own answers** on questions where more than one can be true.
+- **Compare one code**, question by question, or **paste a whole comment section** and rank every code in it.
+- **First-date topics:** each comparison picks the three biggest differences to talk about.
+- **Share a result** as text or as an image card. The card shows only the score, never the answers.
+- **Copy a hot take as a post**, linked to your own code.
+- **Suggest a question** from the footer (opens a pre-filled GitHub issue).
+- **Install as an app** and use it offline.
 
 ## Privacy
 
 - **Nothing is collected.** There is no backend. Answers stay in the browser until the person shares their code.
 - **A code is public.** It is the answers in compressed form, and the format is documented below, so anyone can decode it. That's why every question can be skipped, skipping is the default, and the app shows the exact list of answers that will go into the code before creating it.
 - **Links keep the code out of server logs.** The code sits after `#` in the link, and browsers never send that part to the server.
-- **Third-party requests:** the page loads fonts from Google Fonts and the QR library from jsDelivr. Neither receives any answers. To remove both, delete the `<link>` to Google Fonts (system fonts take over) and save `qrcode.js` next to `index.html`, then point the `<script>` at it.
+- **No third-party requests.** Fonts, icons and the QR library are served from this repository, so opening the page contacts nothing but GitHub Pages. The result image is drawn in the browser.
 
 ## Publish on GitHub Pages
 
 1. Create a public repository, for example `paircode`.
-2. Upload `index.html`, `questions.js`, `README.md` and `LICENSE` (Add file → Upload files).
+2. Upload every file, keeping the `fonts` folder (Add file → Upload files).
 3. Settings → Pages → Source: *Deploy from a branch*, Branch: `main`, folder `/ (root)` → Save.
-4. After a minute the app is live at `https://<your-username>.github.io/paircode/` (this copy: https://p4tient.github.io/paircode/).
-5. Optional: set `REPO_URL` at the top of the script in `index.html` so the footer links to `questions.js` on GitHub.
+4. After a minute the app is live at `https://<your-username>.github.io/paircode/`.
+5. Set `REPO_URL` at the top of the script in `index.html`. The footer then links to `questions.js` and shows the "Suggest a question" button.
 
-Opening `index.html` straight from your disk also works for testing.
+Opening `index.html` straight from your disk also works for testing (offline support only runs over https or localhost).
 
 ## Editing questions
 
@@ -37,7 +50,7 @@ Codes refer to question ids, not positions, so codes made before an edit keep wo
 A question looks like this:
 
 ```js
-{ id: 54, pack: "lifestyle", sensitive: false,
+{ id: 65, pack: "lifestyle", sensitive: false,
   text: { en: "Coffee or tea?", uk: "Кава чи чай?", pl: "Kawa czy herbata?" },
   options: {
     en: ["Coffee", "Tea", "Both", "Neither"],
@@ -45,11 +58,15 @@ A question looks like this:
     pl: ["Kawa", "Herbata", "Obie", "Żadne"] } },
 ```
 
-`showIf: { id: 3, answer: 0 }` shows a question only when question 3 has option 0 picked. `options: "agree"` reuses a shared scale from `scales`; questions on that scale also get a "Copy as a post" button. `quick: true` puts a question in the 10-question quick version. `multi: true` lets people pick several of their own answers; turning it on for an existing question doesn't break earlier codes. A pack can carry a one-line `note` shown at its top.
+- `showIf: { id: 3, answer: 0 }` shows a question only when question 3 has option 0 picked.
+- `options: "agree"` reuses a shared scale from `scales`; questions on that scale also get a "Copy as a post" button.
+- `quick: true` puts a question in the quick version.
+- `multi: true` lets people pick several of their own answers. Turning it on for an existing question doesn't break earlier codes.
+- A pack can carry a one-line `note` shown at its top.
 
 ## Scoring
 
-For each question both people answered, each person gets points when the other's answer is one they accept (with several answers picked, one acceptable answer is enough), weighted by importance: doesn't matter 0, a little 1, a lot 10, dealbreaker 100. The match is the geometric mean of both sides, so it is only high when it works for both. With fewer than 8 shared answers the app shows the breakdown but no percentage. Dealbreakers are always listed separately, including ones the other person skipped. The result also picks the three biggest differences as first-date topics.
+For each question both people answered, each person gets points when the other's answer is one they accept (with several answers picked, one acceptable answer is enough), weighted by importance: doesn't matter 0, a little 1, a lot 10, dealbreaker 100. The match is the geometric mean of both sides, so it is only high when it works for both. With fewer than 8 shared answers the app shows the breakdown but no percentage. Dealbreakers are always listed separately, including ones the other person skipped.
 
 ## Code format
 
@@ -66,8 +83,8 @@ The bytes are written in base62 (letters and digits only), so a long-press selec
 
 ## Settings
 
-At the top of the script in `index.html`: `REPO_URL`, `SHARE_BASE` (fixed address for share links), `WEIGHTS`, `MIN_SHARED`. Interface text for all three languages is in the `UI` object below them.
+At the top of the script in `index.html`: `REPO_URL`, `SHARE_BASE` (fixed address for share links), `WEIGHTS`, `MIN_SHARED`. Interface text for all three languages is in the `UI` object below them. `sw.js` lists the files kept for offline use; bump its `CACHE` name when that list changes.
 
 ## License
 
-MIT, see `LICENSE`.
+Code: MIT, see `LICENSE`. Fonts (Onest, Unbounded, JetBrains Mono): SIL Open Font License 1.1, see `fonts/OFL.txt`. QR library (`qrcode.js`, Kazuhiko Arase): MIT, notice inside the file.
