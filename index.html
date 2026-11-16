@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paircode</title>
+<meta name="description" content="Answer dating questions, get a short public code, compare codes for compatibility. Open source, nothing collected.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
+<style>
+/* Layout: one narrow column under a sticky brand bar; views swap in place; the code "ticket" is the app's hero object. */
+:root {
+  --bg: #F2F3F7;
+  --bar: #F2F3F7;
+  --surface: #FFFFFF;
+  --ink: #141828;
+  --muted: #5B6178;
+  --line: #D9DCE6;
+  --accent: #2D47D6;
+  --accent-soft: #E3E7FB;
+  --on-accent: #FFFFFF;
+  --ok: #17845A;
+  --ok-soft: #DCF2E7;
+  --half: #A2660A;
+  --half-soft: #F9EDD5;
+  --bad: #C43737;
+  --bad-soft: #F9E1E1;
+  --on-bad: #FFFFFF;
+  --warn-bg: #FFF3D1;
+  --warn-ink: #4E3B00;
+  --warn-line: #EBD48C;
+  --display: "Unbounded", "Onest", system-ui, sans-serif;
+  --body: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1120; --bar: #0E1120; --surface: #161A2C; --ink: #E9EBF3; --muted: #9BA1B9; --line: #2A3048;
+    --accent: #8095FF; --accent-soft: #232C57; --on-accent: #0E1120;
+    --ok: #4CC793; --ok-soft: #173A2C; --half: #E2A94A; --half-soft: #3B2F17; --bad: #F07878; --bad-soft: #3F1E22; --on-bad: #1B0A0C;
+    --warn-bg: #2F2810; --warn-ink: #F3DF9E; --warn-line: #5A4B1C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1120; --bar: #0E1120; --surface: #161A2C; --ink: #E9EBF3; --muted: #9BA1B9; --line: #2A3048;
+  --accent: #8095FF; --accent-soft: #232C57; --on-accent: #0E1120;
+  --ok: #4CC793; --ok-soft: #173A2C; --half: #E2A94A; --half-soft: #3B2F17; --bad: #F07878; --bad-soft: #3F1E22; --on-bad: #1B0A0C;
+  --warn-bg: #2F2810; --warn-ink: #F3DF9E; --warn-line: #5A4B1C;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bar); }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+
+.wrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- Top bar ---------- */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 6; background: var(--bar); border-bottom: 1px solid var(--line); }
+.bar-row { display: flex; align-items: center; gap: 12px; padding-block: 10px 6px; }
+.brand { display: inline-flex; align-items: center; gap: 9px; border: 0; background: none; padding: 4px 0; cursor: pointer; font: 800 17px/1 var(--display); letter-spacing: -0.01em; }
+.langs { margin-left: auto; display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 999px; }
+.langs button { border: 0; background: none; padding: 7px 10px; border-radius: 999px; font: 600 12px/1 var(--body); letter-spacing: 0.06em; color: var(--muted); cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.tabs { display: flex; gap: 4px; overflow-x: auto; }
+.tabs button { border: 0; background: none; padding: 9px 10px 10px; font: 500 14px/1 var(--body); color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tabs button[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* ---------- Main ---------- */
+.main { padding-block: 22px 120px; display: flex; flex-direction: column; gap: 18px; }
+.view { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+h1 { font: 600 clamp(26px, 6.4vw, 36px)/1.15 var(--display); letter-spacing: -0.02em; }
+h2 { font: 600 22px/1.25 var(--display); letter-spacing: -0.01em; }
+h3 { font: 600 16px/1.35 var(--body); }
+p { margin: 0; }
+.lead { font-size: 17px; color: var(--muted); max-width: 60ch; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 10px 18px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 15px; cursor: pointer; text-decoration: none; color: var(--ink); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.ghost { background: transparent; }
+.btn.small { min-height: 36px; padding: 6px 12px; font-size: 14px; border-radius: 10px; }
+.btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.linkbtn { border: 0; background: none; padding: 6px 0; color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+.note { display: flex; gap: 10px; padding: 12px 14px; border-radius: 12px; font-size: 15px; }
+.note b { display: block; margin-bottom: 2px; }
+.note.warn { background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-line); }
+.note.calm { background: var(--surface); border: 1px solid var(--line); }
+.note .ico { flex: none; font-weight: 700; }
+.errors { background: var(--bad-soft); color: var(--ink); border: 1px solid var(--bad); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+.errors ul { margin: 6px 0 0; padding-left: 18px; }
+.errors code { font-family: var(--mono); font-size: 13px; }
+
+/* ---------- Home ---------- */
+.hero { display: flex; flex-direction: column; gap: 14px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.steps li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; }
+.steps .num { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font: 600 14px/1 var(--display); }
+.sample { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; background: var(--accent-soft); color: var(--accent); width: fit-content; }
+
+/* ---------- Score ---------- */
+.score-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.score { font: 800 56px/1 var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.score span { font-size: 26px; color: var(--muted); margin-left: 2px; }
+.score-label { font: 600 13px/1.2 var(--body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.counts { display: flex; flex-wrap: wrap; gap: 8px; }
+.count { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 13px; font-variant-numeric: tabular-nums; }
+.count i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+.count b { font-weight: 700; }
+
+.strip { display: flex; flex-wrap: wrap; gap: 3px; }
+.cell { width: 12px; height: 12px; border-radius: 3px; background: var(--line); }
+.cell.imp0 { background: var(--accent); opacity: 0.22; }
+.cell.imp1 { background: var(--accent); opacity: 0.5; }
+.cell.imp2 { background: var(--accent); opacity: 0.78; }
+.cell.imp3 { background: var(--accent); }
+.s-ok, .count .s-ok { background: var(--ok); }
+.s-half, .count .s-half { background: var(--half); }
+.s-bad, .count .s-bad { background: var(--bad); }
+.s-deal, .count .s-deal { background: var(--bad); box-shadow: inset 0 0 0 2px var(--ink); }
+
+/* ---------- Quiz ---------- */
+.pack { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.pack > summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 14px 16px; cursor: pointer; }
+.pack > summary::-webkit-details-marker { display: none; }
+.pack > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin-left: 4px; margin-top: -4px; }
+.pack[open] > summary::after { transform: rotate(-135deg); margin-top: 4px; }
+.pack-title { font: 600 15px/1.2 var(--display); flex: 1; min-width: 0; }
+.pack-count { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pack-body { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+
+.q { padding: 16px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--line); }
+.q:last-child { border-bottom: 0; }
+.q.is-on { background: color-mix(in srgb, var(--accent-soft) 35%, var(--surface)); }
+.q-head { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; }
+.q-text { min-width: 0; }
+.badge { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--warn-bg); color: var(--warn-ink); border: 1px solid var(--warn-line); }
+.q-note { font-size: 13px; color: var(--muted); margin-top: -6px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 9px 14px; font-size: 15px; line-height: 1.25; cursor: pointer; text-align: left; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chips.sm .chip { padding: 6px 11px; font-size: 14px; }
+.chips.sm .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.chips.sm .chip[aria-pressed="true"]::before { content: "✓ "; color: var(--accent); font-weight: 700; }
+
+.sub { display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
+.sub-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 1px solid var(--line); background: var(--surface); padding: 7px 12px; font-size: 14px; border-radius: 10px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.seg button.deal[aria-pressed="true"] { background: var(--bad); color: var(--on-bad); border-color: var(--bad); }
+.q-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.skipped { font-size: 13px; color: var(--muted); }
+
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bar); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.dock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.dock-count { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- Review / inside lists ---------- */
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.rv { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.rv:last-child { border-bottom: 0; }
+.rv-main { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rv-q { font-size: 14px; color: var(--muted); }
+.rv-a { font-weight: 600; }
+.rv-meta { font-size: 13px; color: var(--muted); }
+
+/* ---------- Code ticket ---------- */
+.ticket { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+.ticket-top, .ticket-bottom { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.ticket-bottom { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 16px; }
+.ticket-bottom p { flex: 1 1 180px; min-width: 0; }
+.perf { position: relative; height: 0; margin: 0 22px; border-top: 2px dashed var(--line); }
+.perf::before, .perf::after { content: ""; position: absolute; top: -12px; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); }
+.perf::before { left: -34px; }
+.perf::after { right: -34px; }
+.code { font: 600 18px/1.55 var(--mono); letter-spacing: 0.03em; word-break: break-all; user-select: all; -webkit-user-select: all; }
+.qr-box { background: #FFFFFF; border-radius: 10px; line-height: 0; flex: none; }
+.qr-box img { width: 168px; height: 168px; image-rendering: pixelated; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 600; color: var(--muted); }
+.field textarea, .field input { width: 100%; font: 500 15px/1.45 var(--mono); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; resize: vertical; }
+.hint { font-size: 13px; color: var(--muted); }
+
+/* ---------- Compare result ---------- */
+.result { display: flex; flex-direction: column; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+.section-title { font: 600 14px/1.2 var(--display); display: flex; align-items: center; gap: 8px; }
+.section-title i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.ci-list { display: flex; flex-direction: column; }
+.ci { padding: 12px 0; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.ci-q { font-weight: 600; }
+.ci-rows { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: baseline; font-size: 15px; }
+.ci-who { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.ci-ans { min-width: 0; }
+.mark { font-weight: 700; }
+.mark.yes { color: var(--ok); }
+.mark.no { color: var(--bad); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--bad-soft); color: var(--bad); }
+details.okset > summary { cursor: pointer; list-style: none; }
+details.okset > summary::-webkit-details-marker { display: none; }
+
+/* ---------- Footer / toast ---------- */
+.foot { display: flex; flex-direction: column; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.how > summary { cursor: pointer; font-weight: 600; }
+.how p { margin-top: 8px; color: var(--muted); font-size: 15px; max-width: 62ch; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 20; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; max-width: calc(100% - 32px); text-align: center; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .chip, .seg button, .btn { transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease; }
+}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap bar-row">
+    <button class="brand" id="brand" type="button" data-go="home">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="13" height="13" rx="3.5" fill="var(--accent)"/><rect x="8" y="8" width="13" height="13" rx="3.5" fill="none" stroke="var(--ink)" stroke-width="2"/></svg>
+      <span>Paircode</span>
+    </button>
+    <div class="langs" id="langs" role="group" aria-label="Language"></div>
+  </div>
+  <div class="wrap"><nav class="tabs" id="tabs"></nav></div>
+</header>
+
+<main class="wrap main">
+  <div id="dataErrors" class="errors" hidden></div>
+  <section id="v-home" class="view"></section>
+  <section id="v-quiz" class="view" hidden></section>
+  <section id="v-review" class="view" hidden></section>
+  <section id="v-code" class="view" hidden></section>
+  <section id="v-compare" class="view" hidden></section>
+  <footer id="foot" class="foot"></footer>
+</main>
+
+<div class="dock" id="dock" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="questions.js"></script>
+<script>
+(function () {
+'use strict';
+
+/* ================= Settings ================= */
+var REPO_URL = 'https://github.com/p4tient/paircode'; // the footer links to questions.js here
+var SHARE_BASE = '';        // leave empty to use this page's own address in share links
+var FORMAT_VERSION = 1;     // bump only if the code format itself changes, never for question edits
+var WEIGHTS = [0, 1, 10, 100]; // doesn't matter, a little, a lot, dealbreaker
+var MIN_SHARED = 8;         // fewer shared answers than this: no percentage, breakdown only
+var LANGS = ['uk', 'pl', 'en'];
+var LANG_LABEL = { uk: 'UA', pl: 'PL', en: 'EN' };
+var STORE = { lang: 'paircode.lang', draft: 'paircode.draft', code: 'paircode.code' };
+
+/* ================= Interface text ================= */
+var UI = {
+  en: {
+    navQuestions: 'Questions', navMyCode: 'My code', navCompare: 'Compare',
+    heroTitle: 'Compare before you meet.',
+    heroLead: "Answer the questions you're comfortable with, get a short code, and post it. Anyone can compare their code with yours, question by question. Both people see the same result.",
+    step1: 'Answer what you want. Every question can be skipped.',
+    step2: 'Get your code and link.',
+    step3: "Post it and compare with anyone's code.",
+    start: 'Start', cont: 'Continue · {n} answered', compareCodes: 'Compare codes',
+    privacyTitle: 'Nothing is collected',
+    privacyBody: "There's no server and no account. Your answers stay in this browser until you share the code yourself.",
+    publicWarn: "Your code is public: anyone can decode it. Only answer what you'd share openly.",
+    exampleLabel: 'Example',
+    howTitle: 'How the score works',
+    howBody: "For each question you both answered, you score points when their answer is one you accept, weighted by how much it matters to you (a little 1, a lot 10, dealbreaker 100, doesn't matter 0). They score the same way against your answers. The match is the geometric mean of both sides, so it's only high when it works for both. Dealbreakers are always listed separately.",
+    footerOpen: 'Open source. Every question is readable in',
+    footerCount: '{n} questions.',
+    errData: 'questions.js has problems:', errLoad: "Couldn't load questions.js. It has to sit next to index.html.",
+    quizHint: 'Tap your answer, then tick the partner answers that are fine with you and how much it matters.',
+    you: 'You', acceptLabel: "Partner answers you'd accept", impLabel: 'How much it matters',
+    imp: ["Doesn't matter", 'A little', 'A lot', 'Dealbreaker'],
+    skip: 'Skip', skipped: 'Skipped', sensitive: 'Sensitive', sensitiveNote: 'Think twice: your code is public.',
+    answered: '{n} answered', review: 'Review',
+    reviewTitle: 'These answers will be public',
+    reviewSub: "Anyone with your code can read them. Remove anything you're unsure about.",
+    backToQ: 'Back to questions', createCode: 'Create my code', remove: 'Remove', noAnswers: 'No answers yet.',
+    accepts: 'Accepts', matters: 'Matters',
+    codeTitle: 'Your code', copyCode: 'Copy code', copyLink: 'Copy link', copyPost: 'Copy post text',
+    copied: 'Copied', copyFail: "Couldn't copy. Select the text and copy it manually.",
+    qrCaption: 'Show it to someone in person: their camera opens the comparison.',
+    qrMissing: "The QR didn't load. The link works without it.",
+    postText: 'My Paircode: {code}\nCompare with yours: {link}',
+    linkLabel: 'Link', postLabel: 'Post text',
+    editAnswers: 'Edit answers', codeMeta: '{n} answers · {len} characters',
+    noCodeYet: 'No code yet.', makeOne: 'Answer the questions',
+    cmpTitle: 'Compare codes', theirLabel: 'Their code or link', mineLabel: 'Your code',
+    mineHint: 'Filled in from this browser if you made your code here.',
+    cmpBtn: 'Compare', viewBtn: "What's in this code?",
+    errInvalid: "This doesn't look like a valid code. Check for missing characters.",
+    errNewer: 'This code was made with a newer version. Reload the page.',
+    errBoth: 'Enter both codes.', errTheirs: 'Enter a code first.', sameCode: "That's the same code twice.",
+    matchLabel: 'Match', comparedOn: 'Compared on {n} shared questions',
+    tooFew: 'Too few shared answers for a fair score: {n} of {min}. The breakdown is below.',
+    cntOk: 'Both fine', cntHalf: 'One-sided', cntBad: 'Mismatch', cntDeal: 'Dealbreakers',
+    secDeal: 'Dealbreakers hit', secBad: 'Mismatch', secHalf: 'Fine for one side only', secOk: 'Fine for both',
+    legend: "✓ the other person accepts this answer · ✗ they don't",
+    them: 'Them',
+    skippedByThem: 'They skipped your dealbreakers: {list}',
+    skippedByYou: 'You skipped their dealbreakers: {list}',
+    unknownNote: "{n} answers come from a newer question list and weren't counted. Reload the page.",
+    insideTitle: "What's in this code", insideMeta: '{n} answers',
+    yourDeal: 'Your dealbreaker', theirDeal: 'Their dealbreaker'
+  },
+  uk: {
+    navQuestions: 'Питання', navMyCode: 'Мій код', navCompare: 'Порівняти',
+    heroTitle: 'Порівняйте до зустрічі.',
+    heroLead: 'Відповідай на питання, на які готовий(-а), отримай короткий код і виклади його. Будь-хто може порівняти свій код з твоїм, питання за питанням. Обоє бачать однаковий результат.',
+    step1: 'Відповідай, на що хочеш. Будь-яке питання можна пропустити.',
+    step2: 'Отримай код і посилання.',
+    step3: 'Виклади його й порівнюй з будь-чиїм кодом.',
+    start: 'Почати', cont: 'Продовжити · відповідей: {n}', compareCodes: 'Порівняти коди',
+    privacyTitle: 'Нічого не збирається',
+    privacyBody: 'Немає сервера й акаунтів. Відповіді лишаються в цьому браузері, доки ти сам(а) не поділишся кодом.',
+    publicWarn: 'Твій код публічний: будь-хто може його розшифрувати. Відповідай лише на те, що готовий(-а) показати відкрито.',
+    exampleLabel: 'Приклад',
+    howTitle: 'Як рахується збіг',
+    howBody: 'За кожне питання, на яке ви обоє відповіли, ти отримуєш бали, якщо відповідь іншої людини тебе влаштовує, з вагою за важливістю (трохи 1, дуже 10, принципово 100, байдуже 0). Інша людина рахується так само щодо твоїх відповідей. Збіг є середнім геометричним обох сторін, тож він високий, лише коли підходить обом. Принципові питання завжди показано окремо.',
+    footerOpen: 'Відкритий код. Кожне питання можна прочитати у файлі',
+    footerCount: 'Питань: {n}.',
+    errData: 'У questions.js є помилки:', errLoad: 'Не вдалося завантажити questions.js. Він має лежати поруч з index.html.',
+    quizHint: 'Обери свою відповідь, потім познач відповіді партнера, які тебе влаштують, і наскільки це важливо.',
+    you: 'Ти', acceptLabel: 'Відповіді партнера, що тебе влаштують', impLabel: 'Наскільки важливо',
+    imp: ['Байдуже', 'Трохи', 'Дуже', 'Принципово'],
+    skip: 'Пропустити', skipped: 'Пропущено', sensitive: 'Делікатне', sensitiveNote: 'Подумай двічі: твій код публічний.',
+    answered: 'Відповідей: {n}', review: 'Переглянути',
+    reviewTitle: 'Ці відповіді будуть публічними',
+    reviewSub: 'Будь-хто з твоїм кодом може їх прочитати. Прибери все, у чому не впевнений(-а).',
+    backToQ: 'Назад до питань', createCode: 'Створити мій код', remove: 'Прибрати', noAnswers: 'Ще немає відповідей.',
+    accepts: 'Влаштовує', matters: 'Важливість',
+    codeTitle: 'Твій код', copyCode: 'Скопіювати код', copyLink: 'Скопіювати посилання', copyPost: 'Скопіювати текст для поста',
+    copied: 'Скопійовано', copyFail: 'Не вдалося скопіювати. Виділи текст і скопіюй вручну.',
+    qrCaption: 'Покажи комусь наживо: камера відкриє порівняння.',
+    qrMissing: 'QR не завантажився. Посилання працює і без нього.',
+    postText: 'Мій Paircode: {code}\nПорівняй зі своїм: {link}',
+    linkLabel: 'Посилання', postLabel: 'Текст для поста',
+    editAnswers: 'Змінити відповіді', codeMeta: 'Відповідей: {n} · символів: {len}',
+    noCodeYet: 'Коду ще немає.', makeOne: 'Відповісти на питання',
+    cmpTitle: 'Порівняти коди', theirLabel: 'Код або посилання іншої людини', mineLabel: 'Твій код',
+    mineHint: 'Підставляється з цього браузера, якщо ти створював(-ла) код тут.',
+    cmpBtn: 'Порівняти', viewBtn: 'Що в цьому коді?',
+    errInvalid: 'Це не схоже на дійсний код. Перевір, чи не бракує символів.',
+    errNewer: 'Цей код створено новішою версією. Онови сторінку.',
+    errBoth: 'Введи обидва коди.', errTheirs: 'Спершу введи код.', sameCode: 'Це той самий код двічі.',
+    matchLabel: 'Збіг', comparedOn: 'Порівняно за {n} спільними питаннями',
+    tooFew: 'Замало спільних відповідей для чесного відсотка: {n} з {min}. Розбір нижче.',
+    cntOk: 'Влаштовує обох', cntHalf: 'Однобічно', cntBad: 'Не збігається', cntDeal: 'Принципові',
+    secDeal: 'Принципові розбіжності', secBad: 'Не збігається', secHalf: 'Влаштовує лише одного', secOk: 'Влаштовує обох',
+    legend: '✓ інша людина приймає цю відповідь · ✗ не приймає',
+    them: 'Інша людина',
+    skippedByThem: 'Інша людина пропустила твої принципові питання: {list}',
+    skippedByYou: 'Ти пропустив(-ла) принципові питання іншої людини: {list}',
+    unknownNote: 'Відповідей з новішого списку питань: {n}. Їх не враховано. Онови сторінку.',
+    insideTitle: 'Що в цьому коді', insideMeta: 'Відповідей: {n}',
+    yourDeal: 'Принципово для тебе', theirDeal: 'Принципово для іншої людини'
+  },
+  pl: {
+    navQuestions: 'Pytania', navMyCode: 'Mój kod', navCompare: 'Porównaj',
+    heroTitle: 'Porównajcie się przed spotkaniem.',
+    heroLead: 'Odpowiedz na pytania, na które chcesz, dostań krótki kod i opublikuj go. Każdy może porównać swój kod z twoim, pytanie po pytaniu. Obie osoby widzą ten sam wynik.',
+    step1: 'Odpowiadaj, na co chcesz. Każde pytanie można pominąć.',
+    step2: 'Dostań kod i link.',
+    step3: 'Opublikuj go i porównuj z dowolnym kodem.',
+    start: 'Zacznij', cont: 'Kontynuuj · odpowiedzi: {n}', compareCodes: 'Porównaj kody',
+    privacyTitle: 'Nic nie jest zbierane',
+    privacyBody: 'Nie ma serwera ani konta. Odpowiedzi zostają w tej przeglądarce, dopóki sam/a nie udostępnisz kodu.',
+    publicWarn: 'Twój kod jest publiczny: każdy może go odczytać. Odpowiadaj tylko na to, co chcesz pokazać otwarcie.',
+    exampleLabel: 'Przykład',
+    howTitle: 'Jak liczony jest wynik',
+    howBody: 'Za każde pytanie, na które oboje odpowiedzieliście, dostajesz punkty, jeśli odpowiedź drugiej osoby ci pasuje, z wagą zależną od ważności (trochę 1, bardzo 10, warunek konieczny 100, obojętne 0). Druga osoba jest liczona tak samo względem twoich odpowiedzi. Wynik to średnia geometryczna obu stron, więc jest wysoki tylko wtedy, gdy pasuje obojgu. Warunki konieczne są zawsze pokazane osobno.',
+    footerOpen: 'Otwarty kod. Każde pytanie można przeczytać w pliku',
+    footerCount: 'Pytań: {n}.',
+    errData: 'W questions.js są błędy:', errLoad: 'Nie udało się wczytać questions.js. Musi leżeć obok index.html.',
+    quizHint: 'Wybierz swoją odpowiedź, potem zaznacz odpowiedzi partnera, które ci pasują, i jak bardzo to ważne.',
+    you: 'Ty', acceptLabel: 'Odpowiedzi partnera, które ci pasują', impLabel: 'Jak bardzo to ważne',
+    imp: ['Obojętne', 'Trochę', 'Bardzo', 'Warunek konieczny'],
+    skip: 'Pomiń', skipped: 'Pominięte', sensitive: 'Drażliwe', sensitiveNote: 'Zastanów się dwa razy: twój kod jest publiczny.',
+    answered: 'Odpowiedzi: {n}', review: 'Przejrzyj',
+    reviewTitle: 'Te odpowiedzi będą publiczne',
+    reviewSub: 'Każdy z twoim kodem może je przeczytać. Usuń wszystko, czego nie jesteś pewien/pewna.',
+    backToQ: 'Wróć do pytań', createCode: 'Utwórz mój kod', remove: 'Usuń', noAnswers: 'Brak odpowiedzi.',
+    accepts: 'Pasuje', matters: 'Ważność',
+    codeTitle: 'Twój kod', copyCode: 'Kopiuj kod', copyLink: 'Kopiuj link', copyPost: 'Kopiuj tekst posta',
+    copied: 'Skopiowano', copyFail: 'Nie udało się skopiować. Zaznacz tekst i skopiuj ręcznie.',
+    qrCaption: 'Pokaż komuś na żywo: aparat otworzy porównanie.',
+    qrMissing: 'Kod QR się nie wczytał. Link działa bez niego.',
+    postText: 'Mój Paircode: {code}\nPorównaj ze swoim: {link}',
+    linkLabel: 'Link', postLabel: 'Tekst posta',
+    editAnswers: 'Edytuj odpowiedzi', codeMeta: 'Odpowiedzi: {n} · znaków: {len}',
+    noCodeYet: 'Nie masz jeszcze kodu.', makeOne: 'Odpowiedz na pytania',
+    cmpTitle: 'Porównaj kody', theirLabel: 'Kod lub link drugiej osoby', mineLabel: 'Twój kod',
+    mineHint: 'Uzupełniany z tej przeglądarki, jeśli tu tworzyłeś/aś kod.',
+    cmpBtn: 'Porównaj', viewBtn: 'Co jest w tym kodzie?',
+    errInvalid: 'To nie wygląda na prawidłowy kod. Sprawdź, czy nie brakuje znaków.',
+    errNewer: 'Ten kod powstał w nowszej wersji. Odśwież stronę.',
+    errBoth: 'Wpisz oba kody.', errTheirs: 'Najpierw wpisz kod.', sameCode: 'To dwa razy ten sam kod.',
+    matchLabel: 'Dopasowanie', comparedOn: 'Porównano na {n} wspólnych pytaniach',
+    tooFew: 'Za mało wspólnych odpowiedzi na uczciwy wynik: {n} z {min}. Szczegóły poniżej.',
+    cntOk: 'Pasuje obojgu', cntHalf: 'Jednostronnie', cntBad: 'Niezgodne', cntDeal: 'Warunki konieczne',
+    secDeal: 'Złamane warunki konieczne', secBad: 'Niezgodne', secHalf: 'Pasuje tylko jednej stronie', secOk: 'Pasuje obojgu',
+    legend: '✓ druga osoba akceptuje tę odpowiedź · ✗ nie akceptuje',
+    them: 'Druga osoba',
+    skippedByThem: 'Druga osoba pominęła twoje warunki konieczne: {list}',
+    skippedByYou: 'Pominąłeś/ęłaś warunki konieczne drugiej osoby: {list}',
+    unknownNote: 'Odpowiedzi z nowszej listy pytań: {n}. Nie zostały uwzględnione. Odśwież stronę.',
+    insideTitle: 'Co jest w tym kodzie', insideMeta: 'Odpowiedzi: {n}',
+    yourDeal: 'Twój warunek konieczny', theirDeal: 'Warunek drugiej osoby'
+  }
+};
+
+/* ================= Helpers ================= */
+var lang = 'en';
+function t(key, vars) {
+  var s = (UI[lang] && UI[lang][key] !== undefined) ? UI[lang][key] : UI.en[key];
+  if (typeof s !== 'string') return s;
+  return s.replace(/\{(\w+)\}/g, function (m, k) { return vars && k in vars ? vars[k] : m; });
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
+}
+function $(sel, el) { return (el || document).querySelector(sel); }
+function storeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function storeSet(k, v) { try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* storage unavailable: page still works */ } }
+
+/* ================= Question data ================= */
+var DATA = window.PAIRCODE_DATA;
+var QBY = new Map();   // every valid question by id, retired ones included
+var ACTIVE = [];       // valid, not retired, in file order
+var PACKS = [];
+var errors = [];
+var loadFailed = false;
+
+function optionSet(q) { return typeof q.options === 'string' ? (DATA.scales || {})[q.options] : q.options; }
+function optionsFor(q, l) { var o = optionSet(q); return o ? (o[l] || o.en) : []; }
+function nOpts(q) { return optionsFor(q, 'en').length; }
+function qText(q) { return q.text[lang] || q.text.en; }
+function oText(q, i) { var o = optionsFor(q, lang); return o[i] !== undefined ? o[i] : '?'; }
+
+function loadData() {
+  if (!DATA || !Array.isArray(DATA.questions)) { loadFailed = true; return; }
+  var langs = Array.isArray(DATA.languages) && DATA.languages.length ? DATA.languages : ['en'];
+  var packKeys = new Set();
+  PACKS = (DATA.packs || []).filter(function (p) {
+    if (!p || !p.key) { errors.push('A pack has no key.'); return false; }
+    if (packKeys.has(p.key)) { errors.push('Pack "' + p.key + '" is listed twice.'); return false; }
+    packKeys.add(p.key); return true;
+  });
+  var seen = new Set();
+  DATA.questions.forEach(function (q, idx) {
+    var label = q && q.id !== undefined ? 'Question id ' + q.id : 'Question #' + (idx + 1) + ' in the file';
+    if (!q || !Number.isInteger(q.id) || q.id < 1 || q.id > 255) { errors.push(label + ': id must be a whole number from 1 to 255.'); return; }
+    if (seen.has(q.id)) { errors.push(label + ': this id is used more than once.'); return; }
+    seen.add(q.id);
+    var problems = [];
+    if (!packKeys.has(q.pack)) problems.push('unknown pack "' + q.pack + '"');
+    var set = optionSet(q);
+    if (!set) problems.push(typeof q.options === 'string' ? 'unknown scale "' + q.options + '"' : 'no options');
+    var count = null;
+    langs.forEach(function (l) {
+      if (!q.text || typeof q.text[l] !== 'string' || !q.text[l].trim()) problems.push('missing ' + l + ' text');
+      if (!set) return;
+      var arr = set[l];
+      if (!Array.isArray(arr)) { problems.push('missing ' + l + ' options'); return; }
+      if (arr.length < 2 || arr.length > 4) problems.push(l + ' has ' + arr.length + ' options (2 to 4 allowed)');
+      if (count === null) count = arr.length; else if (arr.length !== count) problems.push('option count differs between languages');
+    });
+    if (problems.length) { errors.push(label + ': ' + Array.from(new Set(problems)).join(', ') + '.'); return; }
+    QBY.set(q.id, q);
+  });
+  QBY.forEach(function (q) {
+    if (!q.showIf) return;
+    var dep = QBY.get(q.showIf.id);
+    if (!dep || !Number.isInteger(q.showIf.answer) || q.showIf.answer < 0 || q.showIf.answer >= nOpts(dep)) {
+      errors.push('Question id ' + q.id + ': showIf points to a missing question or option, so it is always shown.');
+      q._badShowIf = true;
+    }
+  });
+  ACTIVE = DATA.questions.filter(function (q) { return q && QBY.get(q.id) === q && !q.retired; });
+}
+
+/* ================= Answers ================= */
+var answers = new Map(); // id -> { a: my option, acc: bitmask of accepted partner options, imp: 0..3, t: accept list touched }
+
+function loadDraft() {
+  try {
+    var arr = JSON.parse(storeGet(STORE.draft) || '[]');
+    arr.forEach(function (e) {
+      var q = QBY.get(e[0]); var r = e[1];
+      if (q && r && r.a < nOpts(q)) answers.set(e[0], { a: r.a | 0, acc: r.acc | 0, imp: r.imp | 0, t: !!r.t });
+    });
+  } catch (e) { answers = new Map(); }
+}
+function saveDraft() { storeSet(STORE.draft, JSON.stringify(Array.from(answers.entries()))); }
+
+function isShown(q, map) {
+  if (!q.showIf || q._badShowIf) return true;
+  var r = map.get(q.showIf.id);
+  return !!r && r.a === q.showIf.answer;
+}
+function publicAnswers() {
+  var m = new Map();
+  ACTIVE.forEach(function (q) {
+    var r = answers.get(q.id);
+    if (!r || !isShown(q, answers) || r.a >= nOpts(q)) return;
+    var mask = (1 << nOpts(q)) - 1;
+    m.set(q.id, { a: r.a, acc: (r.acc & mask) || (1 << r.a), imp: r.imp & 3 });
+  });
+  return m;
+}
+
+/* ================= Code format =================
+   bytes: [version][N = highest answered id][bitmap of ids 1..N][one byte per answered id][CRC-8]
+   answer byte: bits 7-6 my option, bits 5-2 accepted partner options, bits 1-0 importance
+   text: base62 (letters and digits only, so a long-press selects the whole code) */
+var B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+function b62enc(bytes) {
+  var n = 0n;
+  bytes.forEach(function (b) { n = n * 256n + BigInt(b); });
+  if (n === 0n) return '0';
+  var s = '';
+  while (n > 0n) { s = B62[Number(n % 62n)] + s; n = n / 62n; }
+  return s;
+}
+function b62dec(str) {
+  var n = 0n;
+  for (var i = 0; i < str.length; i++) {
+    var v = B62.indexOf(str[i]);
+    if (v < 0) return null;
+    n = n * 62n + BigInt(v);
+  }
+  var out = [];
+  while (n > 0n) { out.unshift(Number(n % 256n)); n = n / 256n; }
+  return out;
+}
+function crc8(bytes) {
+  var c = 0;
+  bytes.forEach(function (b) {
+    c ^= b;
+    for (var i = 0; i < 8; i++) c = (c & 0x80) ? ((c << 1) ^ 0x07) & 0xff : (c << 1) & 0xff;
+  });
+  return c;
+}
+function encode(map) {
+  var ids = Array.from(map.keys()).sort(function (a, b) { return a - b; });
+  var N = ids.length ? ids[ids.length - 1] : 0;
+  var bytes = [FORMAT_VERSION, N];
+  var bm = new Array(Math.ceil(N / 8)).fill(0);
+  ids.forEach(function (id) { bm[(id - 1) >> 3] |= 1 << ((id - 1) & 7); });
+  bytes = bytes.concat(bm);
+  ids.forEach(function (id) { var r = map.get(id); bytes.push(((r.a & 3) << 6) | ((r.acc & 15) << 2) | (r.imp & 3)); });
+  bytes.push(crc8(bytes));
+  return b62enc(bytes);
+}
+function decode(str) {
+  if (!/^[0-9A-Za-z]+$/.test(str)) return { err: 'invalid' };
+  var bytes = b62dec(str);
+  if (!bytes || bytes.length < 3) return { err: 'invalid' };
+  var crc = bytes.pop();
+  if (crc8(bytes) !== crc) return { err: 'invalid' };
+  if (bytes[0] > FORMAT_VERSION) return { err: 'newer' };
+  if (bytes[0] !== 1) return { err: 'invalid' };
+  var N = bytes[1], bmLen = Math.ceil(N / 8);
+  if (bytes.length < 2 + bmLen) return { err: 'invalid' };
+  var ids = [];
+  for (var id = 1; id <= N; id++) if (bytes[2 + ((id - 1) >> 3)] & (1 << ((id - 1) & 7))) ids.push(id);
+  if (!ids.length || bytes.length !== 2 + bmLen + ids.length) return { err: 'invalid' };
+  var map = new Map();
+  ids.forEach(function (id, i) { var b = bytes[2 + bmLen + i]; map.set(id, { a: b >> 6, acc: (b >> 2) & 15, imp: b & 3 }); });
+  return { map: map };
+}
+/* Accepts a bare code, a share link, or a whole pasted post. */
+function parseCode(input) {
+  var s = String(input || '').trim();
+  if (!s) return { err: 'empty' };
+  var cands = [];
+  var h = s.lastIndexOf('#');
+  if (h >= 0) { var m = s.slice(h + 1).match(/^[0-9A-Za-z]+/); if (m) cands.push(m[0]); }
+  (s.match(/[0-9A-Za-z]{6,}/g) || []).sort(function (a, b) { return b.length - a.length; }).forEach(function (x) { cands.push(x); });
+  var newer = false;
+  for (var i = 0; i < cands.length; i++) {
+    var r = decode(cands[i]);
+    if (r.map) return { map: r.map, code: cands[i] };
+    if (r.err === 'newer') newer = true;
+  }
+  return { err: newer ? 'newer' : 'invalid' };
+}
+
+/* ================= Scoring ================= */
+function compareMaps(A, B) {
+  var items = [], eA = 0, pA = 0, eB = 0, pB = 0, unknown = 0;
+  var skippedByB = [], skippedByA = [];
+  var ids = new Set(Array.from(A.keys()).concat(Array.from(B.keys())));
+  ids.forEach(function (id) {
+    var q = QBY.get(id), a = A.get(id), b = B.get(id);
+    if (!q) { unknown++; return; }
+    if (q.retired) return;
+    var n = nOpts(q);
+    if ((a && a.a >= n) || (b && b.a >= n)) { unknown++; return; }
+    if (a && b) {
+      var aAccepts = !!(a.acc & (1 << b.a));
+      var bAccepts = !!(b.acc & (1 << a.a));
+      var wa = WEIGHTS[a.imp], wb = WEIGHTS[b.imp];
+      pA += wa; if (aAccepts) eA += wa;
+      pB += wb; if (bAccepts) eB += wb;
+      var dealA = a.imp === 3 && !aAccepts, dealB = b.imp === 3 && !bAccepts;
+      var status = (dealA || dealB) ? 'deal' : (aAccepts && bAccepts) ? 'ok' : (aAccepts || bAccepts) ? 'half' : 'bad';
+      items.push({ q: q, a: a, b: b, aAccepts: aAccepts, bAccepts: bAccepts, dealA: dealA, dealB: dealB, status: status });
+    } else if (a && a.imp === 3) skippedByB.push(q);
+    else if (b && b.imp === 3) skippedByA.push(q);
+  });
+  var sA = pA ? eA / pA : 1, sB = pB ? eB / pB : 1;
+  return { items: items, n: items.length, score: Math.sqrt(sA * sB), sA: sA, sB: sB, skippedByA: skippedByA, skippedByB: skippedByB, unknown: unknown };
+}
+function displayOrder() { var m = new Map(); ACTIVE.forEach(function (q, i) { m.set(q.id, i); }); return m; }
+
+/* ================= View state ================= */
+var view = 'home';
+var openPacks = new Set(['core']);
+var cmp = { theirs: '', mine: '', mode: '', error: '', result: null, single: null };
+
+function shareLink(code) { return (SHARE_BASE || location.href.split('#')[0]) + '#' + code; }
+var memCode = '';  // used when browser storage is blocked
+function myCode() { return storeGet(STORE.code) || memCode; }
+
+function show(v, opts) {
+  view = v;
+  ['home', 'quiz', 'review', 'code', 'compare'].forEach(function (k) { $('#v-' + k).hidden = k !== v; });
+  render();
+  if (!(opts && opts.keepScroll)) window.scrollTo(0, 0);
+}
+function render() {
+  renderChrome();
+  if (view === 'home') renderHome();
+  if (view === 'quiz') renderQuiz();
+  if (view === 'review') renderReview();
+  if (view === 'code') renderCode();
+  if (view === 'compare') renderCompare();
+  renderDock();
+}
+
+/* ---------- Chrome ---------- */
+function renderChrome() {
+  document.documentElement.lang = lang;
+  $('#langs').innerHTML = LANGS.map(function (l) {
+    return '<button type="button" data-lang="' + l + '" aria-pressed="' + (l === lang) + '">' + LANG_LABEL[l] + '</button>';
+  }).join('');
+  var tabs = [['quiz', 'navQuestions'], ['code', 'navMyCode'], ['compare', 'navCompare']];
+  $('#tabs').innerHTML = tabs.map(function (tb) {
+    var active = view === tb[0] || (view === 'review' && tb[0] === 'quiz');
+    return '<button type="button" data-go="' + tb[0] + '"' + (active ? ' aria-current="page"' : '') + '>' + esc(t(tb[1])) + '</button>';
+  }).join('');
+  var box = $('#dataErrors');
+  if (loadFailed) { box.hidden = false; box.innerHTML = esc(t('errLoad')); }
+  else if (errors.length) {
+    box.hidden = false;
+    box.innerHTML = '<b>' + esc(t('errData')) + '</b><ul>' + errors.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') + '</ul>';
+  } else box.hidden = true;
+  var qHref = REPO_URL ? REPO_URL.replace(/\/$/, '') + '/blob/main/questions.js' : 'questions.js';
+  $('#foot').innerHTML =
+    '<details class="how"><summary>' + esc(t('howTitle')) + '</summary><p>' + esc(t('howBody')) + '</p></details>' +
+    '<p class="small muted">' + esc(t('footerOpen')) + ' <a href="' + esc(qHref) + '" target="_blank" rel="noopener">questions.js</a>. ' + esc(t('footerCount', { n: ACTIVE.length })) + '</p>';
+}
+
+/* ---------- Home ---------- */
+function renderHome() {
+  var n = answers.size;
+  var sample = ['ok','ok','half','ok','ok','bad','ok','ok','half','ok','ok','ok','half','bad'];
+  $('#v-home').innerHTML =
+    '<div class="hero">' +
+      '<h1>' + esc(t('heroTitle')) + '</h1>' +
+      '<p class="lead">' + esc(t('heroLead')) + '</p>' +
+      '<div class="actions">' +
+        '<button type="button" class="btn primary" data-go="quiz">' + esc(n ? t('cont', { n: n }) : t('start')) + '</button>' +
+        '<button type="button" class="btn ghost" data-go="compare">' + esc(t('compareCodes')) + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<ol class="steps">' +
+      ['step1', 'step2', 'step3'].map(function (k, i) { return '<li><span class="num">' + (i + 1) + '</span><span>' + esc(t(k)) + '</span></li>'; }).join('') +
+    '</ol>' +
+    '<div class="note calm"><span class="ico" aria-hidden="true">✓</span><div><b>' + esc(t('privacyTitle')) + '</b>' + esc(t('privacyBody')) + '</div></div>' +
+    '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('publicWarn')) + '</div></div>' +
+    '<div class="sample">' +
+      '<span class="pill">' + esc(t('exampleLabel')) + '</span>' +
+      '<div class="score-row"><div class="score">78<span>%</span></div><div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: 14 })) + '</div></div></div>' +
+      '<div class="strip" aria-hidden="true">' + sample.map(function (s) { return '<span class="cell s-' + s + '"></span>'; }).join('') + '</div>' +
+      countsHTML({ ok: 9, half: 3, bad: 2, deal: 0 }) +
+    '</div>';
+}
+function countsHTML(c) {
+  return '<div class="counts">' +
+    [['ok', 'cntOk'], ['half', 'cntHalf'], ['bad', 'cntBad'], ['deal', 'cntDeal']].map(function (k) {
+      return '<span class="count"><i class="s-' + k[0] + '"></i>' + esc(t(k[1])) + ' <b>' + (c[k[0]] || 0) + '</b></span>';
+    }).join('') + '</div>';
+}
+
+/* ---------- Quiz ---------- */
+function cardHTML(q) {
+  var r = answers.get(q.id);
+  var opts = optionsFor(q, lang);
+  var h = '<article class="q' + (r ? ' is-on' : '') + '" data-id="' + q.id + '">';
+  h += '<div class="q-head"><h3 class="q-text">' + esc(qText(q)) + '</h3>' +
+       (q.sensitive ? '<span class="badge">⚠ ' + esc(t('sensitive')) + '</span>' : '') + '</div>';
+  if (q.sensitive && !r) h += '<p class="q-note">' + esc(t('sensitiveNote')) + '</p>';
+  h += '<div class="chips" role="group" aria-label="' + esc(t('you')) + '">' + opts.map(function (o, i) {
+    return '<button type="button" class="chip" data-act="ans" data-i="' + i + '" aria-pressed="' + (!!r && r.a === i) + '">' + esc(o) + '</button>';
+  }).join('') + '</div>';
+  if (r) {
+    h += '<div class="sub"><div class="sub-label">' + esc(t('acceptLabel')) + '</div>' +
+      '<div class="chips sm" role="group">' + opts.map(function (o, i) {
+        return '<button type="button" class="chip" data-act="acc" data-i="' + i + '" aria-pressed="' + !!(r.acc & (1 << i)) + '">' + esc(o) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="sub-label">' + esc(t('impLabel')) + '</div>' +
+      '<div class="seg" role="group">' + t('imp').map(function (lab, k) {
+        return '<button type="button"' + (k === 3 ? ' class="deal"' : '') + ' data-act="imp" data-i="' + k + '" aria-pressed="' + (r.imp === k) + '">' + esc(lab) + '</button>';
+      }).join('') + '</div></div>' +
+      '<div class="q-foot"><span></span><button type="button" class="linkbtn" data-act="skip">' + esc(t('skip')) + '</button></div>';
+  } else {
+    h += '<div class="q-foot"><span class="skipped">' + esc(t('skipped')) + '</span></div>';
+  }
+  return h + '</article>';
+}
+function renderQuiz() {
+  var h = '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('publicWarn')) + '</div></div>' +
+          '<p class="muted small">' + esc(t('quizHint')) + '</p>';
+  PACKS.forEach(function (p) {
+    var qs = ACTIVE.filter(function (q) { return q.pack === p.key && isShown(q, answers); });
+    if (!qs.length) return;
+    var done = qs.filter(function (q) { return answers.has(q.id); }).length;
+    h += '<details class="pack" data-pack="' + esc(p.key) + '"' + (openPacks.has(p.key) ? ' open' : '') + '>' +
+         '<summary><span class="pack-title">' + esc(p.title[lang] || p.title.en) + '</span><span class="pack-count">' + done + '/' + qs.length + '</span></summary>' +
+         '<div class="pack-body">' + qs.map(cardHTML).join('') + '</div></details>';
+  });
+  $('#v-quiz').innerHTML = h;
+}
+function renderDock() {
+  var d = $('#dock');
+  if (view !== 'quiz') { d.hidden = true; return; }
+  d.hidden = false;
+  var n = publicAnswers().size;
+  d.innerHTML = '<div class="wrap dock-row"><span class="dock-count">' + esc(t('answered', { n: n })) + '</span>' +
+    '<button type="button" class="btn primary" data-go="review">' + esc(t('review')) + '</button></div>';
+}
+function onQuizAction(btn) {
+  var card = btn.closest('.q'); if (!card) return;
+  var id = +card.dataset.id, q = QBY.get(id), i = +btn.dataset.i, act = btn.dataset.act;
+  var r = answers.get(id);
+  if (act === 'ans') {
+    if (!r) answers.set(id, { a: i, acc: 1 << i, imp: 1, t: false });
+    else if (r.a !== i) { r.a = i; if (!r.t) r.acc = 1 << i; }
+  } else if (act === 'acc' && r) {
+    var next = r.acc ^ (1 << i);
+    if (next & ((1 << nOpts(q)) - 1)) { r.acc = next; r.t = true; }
+  } else if (act === 'imp' && r) {
+    r.imp = i;
+  } else if (act === 'skip') {
+    answers.delete(id);
+  }
+  // drop answers to questions that are now hidden by showIf
+  ACTIVE.forEach(function (x) { if (!isShown(x, answers)) answers.delete(x.id); });
+  saveDraft();
+  renderQuiz(); renderDock();
+  var again = $('#v-quiz .q[data-id="' + id + '"] [data-act="' + act + '"][data-i="' + (isNaN(i) ? '' : i) + '"]') ||
+              $('#v-quiz .q[data-id="' + id + '"] [data-act="ans"]');
+  if (again) again.focus({ preventScroll: true });
+}
+
+/* ---------- Review ---------- */
+function answerRowHTML(q, r, removable) {
+  var acc = optionsFor(q, lang).filter(function (o, i) { return r.acc & (1 << i); }).join(', ');
+  return '<div class="rv"><div class="rv-main">' +
+    '<div class="rv-q">' + esc(qText(q)) + (q.sensitive ? ' ⚠' : '') + '</div>' +
+    '<div class="rv-a">' + esc(oText(q, r.a)) + '</div>' +
+    '<div class="rv-meta">' + esc(t('accepts')) + ': ' + esc(acc) + ' · ' + esc(t('matters')) + ': ' + esc(t('imp')[r.imp]) + '</div>' +
+    '</div>' + (removable ? '<button type="button" class="btn small ghost" data-act="rm" data-id="' + q.id + '">' + esc(t('remove')) + '</button>' : '') + '</div>';
+}
+function renderReview() {
+  var pub = publicAnswers();
+  var rows = ACTIVE.filter(function (q) { return pub.has(q.id); }).map(function (q) { return answerRowHTML(q, pub.get(q.id), true); }).join('');
+  $('#v-review').innerHTML =
+    '<h2>' + esc(t('reviewTitle')) + '</h2>' +
+    '<p class="muted">' + esc(t('reviewSub')) + '</p>' +
+    (rows ? '<div class="list">' + rows + '</div>' : '<p class="muted">' + esc(t('noAnswers')) + '</p>') +
+    '<div class="actions">' +
+      '<button type="button" class="btn primary" data-act="create"' + (pub.size ? '' : ' disabled') + '>' + esc(t('createCode')) + '</button>' +
+      '<button type="button" class="btn ghost" data-go="quiz">' + esc(t('backToQ')) + '</button>' +
+    '</div>';
+}
+
+/* ---------- My code ---------- */
+function renderCode() {
+  var code = myCode();
+  var parsed = code ? decode(code) : null;
+  if (!parsed || !parsed.map) {
+    $('#v-code').innerHTML = '<h2>' + esc(t('codeTitle')) + '</h2><p class="muted">' + esc(t('noCodeYet')) + '</p>' +
+      '<div class="actions"><button type="button" class="btn primary" data-go="quiz">' + esc(t('makeOne')) + '</button></div>';
+    return;
+  }
+  var link = shareLink(code);
+  var order = displayOrder();
+  var cells = Array.from(parsed.map.entries()).sort(function (x, y) { return (order.has(x[0]) ? order.get(x[0]) : 999) - (order.has(y[0]) ? order.get(y[0]) : 999); })
+    .map(function (e) { return '<span class="cell imp' + e[1].imp + '"></span>'; }).join('');
+  var post = t('postText', { code: code, link: link });
+  $('#v-code').innerHTML =
+    '<h2>' + esc(t('codeTitle')) + '</h2>' +
+    '<div class="ticket">' +
+      '<div class="ticket-top">' +
+        '<div class="code" id="codeText">' + esc(code) + '</div>' +
+        '<div class="muted small">' + esc(t('codeMeta', { n: parsed.map.size, len: code.length })) + '</div>' +
+        '<div class="strip" aria-hidden="true">' + cells + '</div>' +
+      '</div>' +
+      '<div class="perf" aria-hidden="true"></div>' +
+      '<div class="ticket-bottom"><div class="qr-box" id="qrBox"></div><p class="small muted" id="qrNote">' + esc(t('qrCaption')) + '</p></div>' +
+    '</div>' +
+    '<div class="actions">' +
+      '<button type="button" class="btn primary" data-act="copy-post">' + esc(t('copyPost')) + '</button>' +
+      '<button type="button" class="btn ghost" data-act="copy-code">' + esc(t('copyCode')) + '</button>' +
+      '<button type="button" class="btn ghost" data-act="copy-link">' + esc(t('copyLink')) + '</button>' +
+    '</div>' +
+    '<div class="field"><label for="postField">' + esc(t('postLabel')) + '</label><textarea id="postField" rows="3" readonly>' + esc(post) + '</textarea></div>' +
+    '<div class="field"><label for="linkField">' + esc(t('linkLabel')) + '</label><input id="linkField" readonly value="' + esc(link) + '"></div>' +
+    '<div class="actions">' +
+      '<button type="button" class="btn ghost" data-go="compare">' + esc(t('compareCodes')) + '</button>' +
+      '<button type="button" class="linkbtn" data-act="edit">' + esc(t('editAnswers')) + '</button>' +
+    '</div>';
+  drawQR(link);
+}
+function drawQR(link) {
+  var box = $('#qrBox');
+  try {
+    if (typeof window.qrcode !== 'function') throw new Error('no qr');
+    var qr = window.qrcode(0, 'M');
+    qr.addData(link);
+    qr.make();
+    box.innerHTML = '<img alt="QR" src="' + qr.createDataURL(6, 18) + '">';
+  } catch (e) {
+    box.hidden = true;
+    $('#qrNote').textContent = t('qrMissing');
+  }
+}
+
+/* ---------- Compare ---------- */
+function renderCompare() {
+  if (!cmp.mine) cmp.mine = myCode();
+  var h = '<h2>' + esc(t('cmpTitle')) + '</h2>' +
+    '<div class="field"><label for="theirs">' + esc(t('theirLabel')) + '</label>' +
+      '<textarea id="theirs" rows="3" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(cmp.theirs) + '</textarea></div>' +
+    '<div class="field"><label for="mine">' + esc(t('mineLabel')) + '</label>' +
+      '<textarea id="mine" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off">' + esc(cmp.mine) + '</textarea>' +
+      '<p class="hint">' + esc(t('mineHint')) + '</p></div>' +
+    '<div class="actions">' +
+      '<button type="button" class="btn primary" data-act="cmp">' + esc(t('cmpBtn')) + '</button>' +
+      '<button type="button" class="btn ghost" data-act="inside">' + esc(t('viewBtn')) + '</button>' +
+    '</div>';
+  if (!myCode()) h += '<p class="small muted">' + esc(t('noCodeYet')) + ' <button type="button" class="linkbtn" data-go="quiz">' + esc(t('makeOne')) + '</button></p>';
+  if (cmp.error) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(cmp.error) + '</div></div>';
+  if (cmp.mode === 'cmp' && cmp.result) h += resultHTML(cmp.result);
+  if (cmp.mode === 'inside' && cmp.single) h += insideHTML(cmp.single);
+  $('#v-compare').innerHTML = h;
+}
+function errText(e) { return e === 'newer' ? t('errNewer') : e === 'empty' ? t('errTheirs') : t('errInvalid'); }
+function runCompare() {
+  cmp.error = ''; cmp.result = null; cmp.single = null; cmp.mode = 'cmp';
+  if (!cmp.theirs.trim() || !cmp.mine.trim()) { cmp.error = t('errBoth'); return; }
+  var B = parseCode(cmp.theirs), A = parseCode(cmp.mine);
+  if (B.err) { cmp.error = t('theirLabel') + ': ' + errText(B.err); return; }
+  if (A.err) { cmp.error = t('mineLabel') + ': ' + errText(A.err); return; }
+  if (A.code === B.code) { cmp.error = t('sameCode'); return; }
+  cmp.result = compareMaps(A.map, B.map);
+}
+function runInside() {
+  cmp.error = ''; cmp.result = null; cmp.single = null; cmp.mode = 'inside';
+  var B = parseCode(cmp.theirs);
+  if (B.err) { cmp.error = errText(B.err); return; }
+  cmp.single = B.map;
+}
+function resultHTML(res) {
+  var c = { ok: 0, half: 0, bad: 0, deal: 0 };
+  res.items.forEach(function (it) { c[it.status]++; });
+  var order = displayOrder();
+  var stripCells = res.items.slice().sort(function (x, y) { return order.get(x.q.id) - order.get(y.q.id); })
+    .map(function (it) { return '<span class="cell s-' + it.status + '"></span>'; }).join('');
+  var h = '<div class="result">';
+  if (res.n >= MIN_SHARED) {
+    h += '<div class="score-row"><div class="score">' + Math.round(res.score * 100) + '<span>%</span></div>' +
+         '<div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: res.n })) + '</div></div></div>';
+  } else {
+    h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('tooFew', { n: res.n, min: MIN_SHARED })) + '</div></div>';
+  }
+  if (res.n) h += '<div class="strip" aria-hidden="true">' + stripCells + '</div>' + countsHTML(c);
+  function qList(arr) { return arr.map(function (q) { return qText(q); }).join(', '); }
+  if (res.skippedByB.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByThem', { list: qList(res.skippedByB) })) + '</div></div>';
+  if (res.skippedByA.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByYou', { list: qList(res.skippedByA) })) + '</div></div>';
+  if (res.unknown) h += '<p class="small muted">' + esc(t('unknownNote', { n: res.unknown })) + '</p>';
+  if (res.n) h += '<p class="small muted">' + esc(t('legend')) + '</p>';
+  var groups = [['deal', 'secDeal'], ['bad', 'secBad'], ['half', 'secHalf'], ['ok', 'secOk']];
+  groups.forEach(function (g) {
+    var its = res.items.filter(function (it) { return it.status === g[0]; });
+    if (!its.length) return;
+    var title = '<span class="section-title"><i class="s-' + g[0] + '"></i>' + esc(t(g[1])) + ' · ' + its.length + '</span>';
+    var list = '<div class="ci-list">' + its.map(itemHTML).join('') + '</div>';
+    if (g[0] === 'ok') h += '<details class="okset"><summary>' + title + '</summary>' + list + '</details>';
+    else h += '<div>' + title + list + '</div>';
+  });
+  return h + '</div>';
+}
+function itemHTML(it) {
+  var tags = '';
+  if (it.dealA) tags += '<span class="tag">' + esc(t('yourDeal')) + '</span>';
+  if (it.dealB) tags += '<span class="tag">' + esc(t('theirDeal')) + '</span>';
+  return '<div class="ci"><div class="ci-q">' + esc(qText(it.q)) + '</div>' +
+    '<div class="ci-rows">' +
+      '<span class="ci-who">' + esc(t('you')) + '</span><span class="ci-ans">' + esc(oText(it.q, it.a.a)) + '</span>' + mark(it.bAccepts) +
+      '<span class="ci-who">' + esc(t('them')) + '</span><span class="ci-ans">' + esc(oText(it.q, it.b.a)) + '</span>' + mark(it.aAccepts) +
+    '</div>' + (tags ? '<div class="tags">' + tags + '</div>' : '') + '</div>';
+}
+function mark(ok) { return '<span class="mark ' + (ok ? 'yes' : 'no') + '" aria-label="' + (ok ? '✓' : '✗') + '">' + (ok ? '✓' : '✗') + '</span>'; }
+function insideHTML(map) {
+  var unknown = 0, rows = '';
+  var order = displayOrder();
+  Array.from(map.entries()).sort(function (x, y) { return (order.has(x[0]) ? order.get(x[0]) : 999) - (order.has(y[0]) ? order.get(y[0]) : 999); })
+    .forEach(function (e) {
+      var q = QBY.get(e[0]);
+      if (!q) { unknown++; return; }
+      if (q.retired || e[1].a >= nOpts(q)) return;
+      rows += answerRowHTML(q, e[1], false);
+    });
+  return '<div class="result"><h3>' + esc(t('insideTitle')) + '</h3><p class="muted small">' + esc(t('insideMeta', { n: map.size })) + '</p>' +
+    (unknown ? '<p class="small muted">' + esc(t('unknownNote', { n: unknown })) + '</p>' : '') +
+    '<div class="list">' + rows + '</div></div>';
+}
+
+/* ---------- Copy + toast ---------- */
+var toastTimer = null;
+function toast(msg) {
+  var el = $('#toast'); el.textContent = msg; el.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.hidden = true; }, 2200);
+}
+function selectFallback(el) {
+  if (!el) return;
+  if (el.select) { el.focus(); el.select(); return; }
+  var range = document.createRange(); range.selectNodeContents(el);
+  var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+}
+function copy(text, fallbackEl) {
+  var fail = function () { selectFallback(fallbackEl); toast(t('copyFail')); };
+  try {
+    var p = navigator.clipboard && navigator.clipboard.writeText(text);
+    if (p && p.then) p.then(function () { toast(t('copied')); }, fail); else fail();
+  } catch (e) { fail(); }
+}
+
+/* ================= Events ================= */
+document.addEventListener('click', function (ev) {
+  var el = ev.target.closest('button, a');
+  if (!el) return;
+  if (el.dataset.lang) { lang = el.dataset.lang; storeSet(STORE.lang, lang); render(); return; }
+  if (el.dataset.go) { show(el.dataset.go); return; }
+  var act = el.dataset.act; if (!act) return;
+  if (act === 'ans' || act === 'acc' || act === 'imp' || act === 'skip') { onQuizAction(el); return; }
+  if (act === 'rm') { answers.delete(+el.dataset.id); saveDraft(); renderReview(); return; }
+  if (act === 'create') {
+    var pub = publicAnswers(); if (!pub.size) return;
+    var code = encode(pub); memCode = code; storeSet(STORE.code, code); cmp.mine = code; show('code'); return;
+  }
+  if (act === 'copy-code') { copy(myCode(), $('#codeText')); return; }
+  if (act === 'copy-link') { copy(shareLink(myCode()), $('#linkField')); return; }
+  if (act === 'copy-post') { copy($('#postField').value, $('#postField')); return; }
+  if (act === 'edit') {
+    if (!answers.size) {
+      var d = decode(myCode());
+      if (d.map) d.map.forEach(function (r, id) { var q = QBY.get(id); if (q && !q.retired && r.a < nOpts(q)) answers.set(id, { a: r.a, acc: r.acc, imp: r.imp, t: true }); });
+      saveDraft();
+    }
+    show('quiz'); return;
+  }
+  if (act === 'cmp') { runCompare(); renderCompare(); return; }
+  if (act === 'inside') { runInside(); renderCompare(); return; }
+});
+document.addEventListener('input', function (ev) {
+  if (ev.target.id === 'theirs') cmp.theirs = ev.target.value;
+  if (ev.target.id === 'mine') cmp.mine = ev.target.value;
+});
+document.addEventListener('toggle', function (ev) {
+  var d = ev.target;
+  if (d.classList && d.classList.contains('pack')) { if (d.open) openPacks.add(d.dataset.pack); else openPacks.delete(d.dataset.pack); }
+}, true);
+
+function readHash() {
+  var h = '';
+  try { h = decodeURIComponent(location.hash.slice(1)); } catch (e) { h = location.hash.slice(1); }
+  if (!h) return false;
+  cmp.theirs = h;
+  if (!cmp.mine) cmp.mine = myCode();
+  if (cmp.mine && cmp.mine !== h) runCompare(); else runInside();
+  show('compare');
+  return true;
+}
+window.addEventListener('hashchange', readHash);
+
+/* ================= Start ================= */
+loadData();
+loadDraft();
+(function pickLang() {
+  var saved = storeGet(STORE.lang);
+  if (saved && UI[saved]) { lang = saved; return; }
+  var nav = (navigator.language || 'en').toLowerCase();
+  lang = nav.indexOf('uk') === 0 || nav.indexOf('ru') === 0 ? 'uk' : nav.indexOf('pl') === 0 ? 'pl' : 'en';
+})();
+if (!readHash()) show('home');
+
+/* exposed for testing and for anyone curious in the browser console */
+window.Paircode = { encode: encode, decode: decode, parseCode: parseCode, compareMaps: compareMaps, crc8: crc8, errors: errors, questions: ACTIVE, weights: WEIGHTS };
+})();
+</script>
+</body>
+</html>
