@@ -276,7 +276,7 @@ details.okset > summary::-webkit-details-marker { display: none; }
 /* ================= Settings ================= */
 var REPO_URL = 'https://github.com/p4tient/paircode'; // the footer links to questions.js here
 var SHARE_BASE = '';        // leave empty to use this page's own address in share links
-var FORMAT_VERSION = 1;     // bump only if the code format itself changes, never for question edits
+var FORMAT_VERSION = 2;     // newest code format this page reads (see Code format below); never bump for question edits
 var WEIGHTS = [0, 1, 10, 100]; // doesn't matter, a little, a lot, dealbreaker
 var MIN_SHARED = 8;         // fewer shared answers than this: no percentage, breakdown only
 var LANGS = ['uk', 'pl', 'en'];
@@ -298,7 +298,7 @@ var UI = {
     publicWarn: "Your code is public: anyone can decode it. Only answer what you'd share openly.",
     exampleLabel: 'Example',
     howTitle: 'How the score works',
-    howBody: "For each question you both answered, you score points when their answer is one you accept, weighted by how much it matters to you (a little 1, a lot 10, dealbreaker 100, doesn't matter 0). They score the same way against your answers. The match is the geometric mean of both sides, so it's only high when it works for both. Dealbreakers are always listed separately.",
+    howBody: "For each question you both answered, you score points when their answer is one you accept, weighted by how much it matters to you (a little 1, a lot 10, dealbreaker 100, doesn't matter 0). They score the same way against your answers. The match is the geometric mean of both sides, so it's only high when it works for both. Dealbreakers are always listed separately. If someone picked several answers, one acceptable answer is enough.",
     footerOpen: 'Open source. Every question is readable in',
     footerCount: '{n} questions.',
     errData: 'questions.js has problems:', errLoad: "Couldn't load questions.js. It has to sit next to index.html.",
@@ -336,6 +336,7 @@ var UI = {
     unknownNote: "{n} answers come from a newer question list and weren't counted. Reload the page.",
     insideTitle: "What's in this code", insideMeta: '{n} answers',
     yourDeal: 'Your dealbreaker', theirDeal: 'Their dealbreaker',
+    pickAll: 'Pick all that apply',
     quickStart: 'Quick start · {n} questions', allQ: 'All {n} questions', quickTitle: 'Quick version',
     modeQuick: 'Quick · {n}', modeAll: 'All · {n}',
     talkTitle: 'Talk about these on a first date', talkHint: 'Ask each other why you picked that.',
@@ -356,7 +357,7 @@ var UI = {
     publicWarn: 'Твій код публічний: будь-хто може його розшифрувати. Відповідай лише на те, що готовий(-а) показати відкрито.',
     exampleLabel: 'Приклад',
     howTitle: 'Як рахується збіг',
-    howBody: 'За кожне питання, на яке ви обоє відповіли, ти отримуєш бали, якщо відповідь іншої людини тебе влаштовує, з вагою за важливістю (трохи 1, дуже 10, принципово 100, байдуже 0). Інша людина рахується так само щодо твоїх відповідей. Збіг є середнім геометричним обох сторін, тож він високий, лише коли підходить обом. Принципові питання завжди показано окремо.',
+    howBody: 'За кожне питання, на яке ви обоє відповіли, ти отримуєш бали, якщо відповідь іншої людини тебе влаштовує, з вагою за важливістю (трохи 1, дуже 10, принципово 100, байдуже 0). Інша людина рахується так само щодо твоїх відповідей. Збіг є середнім геометричним обох сторін, тож він високий, лише коли підходить обом. Принципові питання завжди показано окремо. Якщо обрано кілька відповідей, достатньо однієї прийнятної.',
     footerOpen: 'Відкритий код. Кожне питання можна прочитати у файлі',
     footerCount: 'Питань: {n}.',
     errData: 'У questions.js є помилки:', errLoad: 'Не вдалося завантажити questions.js. Він має лежати поруч з index.html.',
@@ -394,6 +395,7 @@ var UI = {
     unknownNote: 'Відповідей з новішого списку питань: {n}. Їх не враховано. Онови сторінку.',
     insideTitle: 'Що в цьому коді', insideMeta: 'Відповідей: {n}',
     yourDeal: 'Принципово для тебе', theirDeal: 'Принципово для іншої людини',
+    pickAll: 'Можна обрати кілька',
     quickStart: 'Швидкий старт · {n} питань', allQ: 'Усі питання ({n})', quickTitle: 'Швидка версія',
     modeQuick: 'Швидко · {n}', modeAll: 'Усі · {n}',
     talkTitle: 'Про що поговорити на першому побаченні', talkHint: 'Спитайте одне одного, чому обрали саме це.',
@@ -414,7 +416,7 @@ var UI = {
     publicWarn: 'Twój kod jest publiczny: każdy może go odczytać. Odpowiadaj tylko na to, co chcesz pokazać otwarcie.',
     exampleLabel: 'Przykład',
     howTitle: 'Jak liczony jest wynik',
-    howBody: 'Za każde pytanie, na które oboje odpowiedzieliście, dostajesz punkty, jeśli odpowiedź drugiej osoby ci pasuje, z wagą zależną od ważności (trochę 1, bardzo 10, warunek konieczny 100, obojętne 0). Druga osoba jest liczona tak samo względem twoich odpowiedzi. Wynik to średnia geometryczna obu stron, więc jest wysoki tylko wtedy, gdy pasuje obojgu. Warunki konieczne są zawsze pokazane osobno.',
+    howBody: 'Za każde pytanie, na które oboje odpowiedzieliście, dostajesz punkty, jeśli odpowiedź drugiej osoby ci pasuje, z wagą zależną od ważności (trochę 1, bardzo 10, warunek konieczny 100, obojętne 0). Druga osoba jest liczona tak samo względem twoich odpowiedzi. Wynik to średnia geometryczna obu stron, więc jest wysoki tylko wtedy, gdy pasuje obojgu. Warunki konieczne są zawsze pokazane osobno. Jeśli ktoś wybrał kilka odpowiedzi, wystarczy jedna akceptowalna.',
     footerOpen: 'Otwarty kod. Każde pytanie można przeczytać w pliku',
     footerCount: 'Pytań: {n}.',
     errData: 'W questions.js są błędy:', errLoad: 'Nie udało się wczytać questions.js. Musi leżeć obok index.html.',
@@ -452,6 +454,7 @@ var UI = {
     unknownNote: 'Odpowiedzi z nowszej listy pytań: {n}. Nie zostały uwzględnione. Odśwież stronę.',
     insideTitle: 'Co jest w tym kodzie', insideMeta: 'Odpowiedzi: {n}',
     yourDeal: 'Twój warunek konieczny', theirDeal: 'Warunek drugiej osoby',
+    pickAll: 'Możesz wybrać kilka',
     quickStart: 'Szybki start · {n} pytań', allQ: 'Wszystkie pytania ({n})', quickTitle: 'Szybka wersja',
     modeQuick: 'Szybko · {n}', modeAll: 'Wszystkie · {n}',
     talkTitle: 'O czym pogadać na pierwszej randce', talkHint: 'Zapytajcie się nawzajem, dlaczego tak wybraliście.',
@@ -488,6 +491,9 @@ function optionsFor(q, l) { var o = optionSet(q); return o ? (o[l] || o.en) : []
 function nOpts(q) { return optionsFor(q, 'en').length; }
 function qText(q) { return q.text[lang] || q.text.en; }
 function oText(q, i) { var o = optionsFor(q, lang); return o[i] !== undefined ? o[i] : '?'; }
+function maskText(q, m) { return optionsFor(q, lang).filter(function (o, i) { return m & (1 << i); }).join(', ') || '?'; }
+function bitCount(x) { var c = 0; while (x) { c += x & 1; x >>= 1; } return c; }
+function lowBit(x) { for (var i = 0; i < 4; i++) if (x & (1 << i)) return i; return 0; }
 
 function loadData() {
   if (!DATA || !Array.isArray(DATA.questions)) { loadFailed = true; return; }
@@ -532,14 +538,17 @@ function loadData() {
 }
 
 /* ================= Answers ================= */
-var answers = new Map(); // id -> { a: my option, acc: bitmask of accepted partner options, imp: 0..3, t: accept list touched }
+var answers = new Map(); // id -> { m: bitmask of my options, acc: bitmask of accepted partner options, imp: 0..3, t: accept list touched }
 
 function loadDraft() {
   try {
     var arr = JSON.parse(storeGet(STORE.draft) || '[]');
     arr.forEach(function (e) {
       var q = QBY.get(e[0]); var r = e[1];
-      if (q && r && r.a < nOpts(q)) answers.set(e[0], { a: r.a | 0, acc: r.acc | 0, imp: r.imp | 0, t: !!r.t });
+      if (!q || !r) return;
+      var full = (1 << nOpts(q)) - 1;
+      var m = r.m !== undefined ? r.m | 0 : (r.a !== undefined ? 1 << (r.a | 0) : 0); // older drafts stored a single option as "a"
+      if (m && !(m & ~full)) answers.set(e[0], { m: m, acc: r.acc | 0, imp: r.imp | 0, t: !!r.t });
     });
   } catch (e) { answers = new Map(); }
 }
@@ -548,22 +557,26 @@ function saveDraft() { storeSet(STORE.draft, JSON.stringify(Array.from(answers.e
 function isShown(q, map) {
   if (!q.showIf || q._badShowIf) return true;
   var r = map.get(q.showIf.id);
-  return !!r && r.a === q.showIf.answer;
+  return !!r && !!(r.m & (1 << q.showIf.answer));
 }
 function publicAnswers() {
   var m = new Map();
   ACTIVE.forEach(function (q) {
     var r = answers.get(q.id);
-    if (!r || !isShown(q, answers) || r.a >= nOpts(q)) return;
     var mask = (1 << nOpts(q)) - 1;
-    m.set(q.id, { a: r.a, acc: (r.acc & mask) || (1 << r.a), imp: r.imp & 3 });
+    if (!r || !isShown(q, answers) || !r.m || (r.m & ~mask)) return;
+    var own = q.multi ? r.m : (1 << lowBit(r.m));
+    m.set(q.id, { m: own, acc: (r.acc & mask) || own, imp: r.imp & 3 });
   });
   return m;
 }
 
 /* ================= Code format =================
-   bytes: [version][N = highest answered id][bitmap of ids 1..N][one byte per answered id][CRC-8]
-   answer byte: bits 7-6 my option, bits 5-2 accepted partner options, bits 1-0 importance
+   v1: [1][N = highest answered id][bitmap of ids 1..N][one byte per answered id][CRC-8]
+       answer byte: bits 7-6 my option, bits 5-2 accepted partner options, bits 1-0 importance
+   v2, used only when someone picked several own answers somewhere:
+       [2][N][bitmap of ids 1..N][bitmap over the answered ids, 1 = several own answers][answers][CRC-8]
+       one own answer: one byte as in v1; several: two bytes, (my options << 4 | importance), then accepted options
    text: base62 (letters and digits only, so a long-press selects the whole code) */
 var B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 function b62enc(bytes) {
@@ -596,11 +609,22 @@ function crc8(bytes) {
 function encode(map) {
   var ids = Array.from(map.keys()).sort(function (a, b) { return a - b; });
   var N = ids.length ? ids[ids.length - 1] : 0;
-  var bytes = [FORMAT_VERSION, N];
+  var multi = ids.map(function (id) { return bitCount(map.get(id).m & 15) > 1; });
+  var v2 = multi.some(Boolean);
+  var bytes = [v2 ? 2 : 1, N];
   var bm = new Array(Math.ceil(N / 8)).fill(0);
   ids.forEach(function (id) { bm[(id - 1) >> 3] |= 1 << ((id - 1) & 7); });
   bytes = bytes.concat(bm);
-  ids.forEach(function (id) { var r = map.get(id); bytes.push(((r.a & 3) << 6) | ((r.acc & 15) << 2) | (r.imp & 3)); });
+  if (v2) {
+    var mb = new Array(Math.ceil(ids.length / 8)).fill(0);
+    multi.forEach(function (on, k) { if (on) mb[k >> 3] |= 1 << (k & 7); });
+    bytes = bytes.concat(mb);
+  }
+  ids.forEach(function (id, k) {
+    var r = map.get(id);
+    if (multi[k]) bytes.push(((r.m & 15) << 4) | (r.imp & 3), r.acc & 15);
+    else bytes.push(((lowBit(r.m) & 3) << 6) | ((r.acc & 15) << 2) | (r.imp & 3));
+  });
   bytes.push(crc8(bytes));
   return b62enc(bytes);
 }
@@ -610,15 +634,33 @@ function decode(str) {
   if (!bytes || bytes.length < 3) return { err: 'invalid' };
   var crc = bytes.pop();
   if (crc8(bytes) !== crc) return { err: 'invalid' };
-  if (bytes[0] > FORMAT_VERSION) return { err: 'newer' };
-  if (bytes[0] !== 1) return { err: 'invalid' };
-  var N = bytes[1], bmLen = Math.ceil(N / 8);
-  if (bytes.length < 2 + bmLen) return { err: 'invalid' };
+  var ver = bytes[0];
+  if (ver > FORMAT_VERSION) return { err: 'newer' };
+  if (ver !== 1 && ver !== 2) return { err: 'invalid' };
+  var N = bytes[1], p = 2 + Math.ceil(N / 8);
+  if (bytes.length < p) return { err: 'invalid' };
   var ids = [];
   for (var id = 1; id <= N; id++) if (bytes[2 + ((id - 1) >> 3)] & (1 << ((id - 1) & 7))) ids.push(id);
-  if (!ids.length || bytes.length !== 2 + bmLen + ids.length) return { err: 'invalid' };
+  if (!ids.length) return { err: 'invalid' };
+  var multi = ids.map(function () { return false; });
+  if (ver === 2) {
+    var mbLen = Math.ceil(ids.length / 8);
+    if (bytes.length < p + mbLen) return { err: 'invalid' };
+    multi = ids.map(function (x, k) { return !!(bytes[p + (k >> 3)] & (1 << (k & 7))); });
+    p += mbLen;
+  }
   var map = new Map();
-  ids.forEach(function (id, i) { var b = bytes[2 + bmLen + i]; map.set(id, { a: b >> 6, acc: (b >> 2) & 15, imp: b & 3 }); });
+  for (var k = 0; k < ids.length; k++) {
+    if (p >= bytes.length) return { err: 'invalid' };
+    var b = bytes[p++];
+    if (multi[k]) {
+      if (p >= bytes.length || !(b >> 4)) return { err: 'invalid' };
+      map.set(ids[k], { m: b >> 4, acc: bytes[p++] & 15, imp: b & 3 });
+    } else {
+      map.set(ids[k], { m: 1 << (b >> 6), acc: (b >> 2) & 15, imp: b & 3 });
+    }
+  }
+  if (p !== bytes.length) return { err: 'invalid' };
   return { map: map };
 }
 /* Accepts a bare code, a share link, or a whole pasted post. */
@@ -648,10 +690,11 @@ function compareMaps(A, B) {
     if (!q) { unknown++; return; }
     if (q.retired) return;
     var n = nOpts(q);
-    if ((a && a.a >= n) || (b && b.a >= n)) { unknown++; return; }
+    var full = (1 << n) - 1;
+    if ((a && (!a.m || (a.m & ~full))) || (b && (!b.m || (b.m & ~full)))) { unknown++; return; }
     if (a && b) {
-      var aAccepts = !!(a.acc & (1 << b.a));
-      var bAccepts = !!(b.acc & (1 << a.a));
+      var aAccepts = !!(a.acc & b.m);   // one acceptable answer is enough
+      var bAccepts = !!(b.acc & a.m);
       var wa = WEIGHTS[a.imp], wb = WEIGHTS[b.imp];
       pA += wa; if (aAccepts) eA += wa;
       pB += wb; if (bAccepts) eB += wb;
@@ -760,8 +803,9 @@ function cardHTML(q) {
   h += '<div class="q-head"><h3 class="q-text">' + esc(qText(q)) + '</h3>' +
        (q.sensitive ? '<span class="badge">⚠ ' + esc(t('sensitive')) + '</span>' : '') + '</div>';
   if (q.sensitive && !r) h += '<p class="q-note">' + esc(t('sensitiveNote')) + '</p>';
+  if (q.multi) h += '<p class="q-note">' + esc(t('pickAll')) + '</p>';
   h += '<div class="chips" role="group" aria-label="' + esc(t('you')) + '">' + opts.map(function (o, i) {
-    return '<button type="button" class="chip" data-act="ans" data-i="' + i + '" aria-pressed="' + (!!r && r.a === i) + '">' + esc(o) + '</button>';
+    return '<button type="button" class="chip" data-act="ans" data-i="' + i + '" aria-pressed="' + (!!r && !!(r.m & (1 << i))) + '">' + esc(o) + '</button>';
   }).join('') + '</div>';
   if (r) {
     h += '<div class="sub"><div class="sub-label">' + esc(t('acceptLabel')) + '</div>' +
@@ -815,8 +859,11 @@ function onQuizAction(btn) {
   var id = +card.dataset.id, q = QBY.get(id), i = +btn.dataset.i, act = btn.dataset.act;
   var r = answers.get(id);
   if (act === 'ans') {
-    if (!r) answers.set(id, { a: i, acc: 1 << i, imp: 1, t: false });
-    else if (r.a !== i) { r.a = i; if (!r.t) r.acc = 1 << i; }
+    if (!r) answers.set(id, { m: 1 << i, acc: 1 << i, imp: 1, t: false });
+    else {
+      var nm = q.multi ? (r.m ^ (1 << i)) : (1 << i);   // multi: toggle; the last one stays (use Skip to clear)
+      if (nm) { r.m = nm; if (!r.t) r.acc = nm; }
+    }
   } else if (act === 'acc' && r) {
     var next = r.acc ^ (1 << i);
     if (next & ((1 << nOpts(q)) - 1)) { r.acc = next; r.t = true; }
@@ -839,7 +886,7 @@ function answerRowHTML(q, r, removable) {
   var acc = optionsFor(q, lang).filter(function (o, i) { return r.acc & (1 << i); }).join(', ');
   return '<div class="rv"><div class="rv-main">' +
     '<div class="rv-q">' + esc(qText(q)) + (q.sensitive ? ' ⚠' : '') + '</div>' +
-    '<div class="rv-a">' + esc(oText(q, r.a)) + '</div>' +
+    '<div class="rv-a">' + esc(maskText(q, r.m)) + '</div>' +
     '<div class="rv-meta">' + esc(t('accepts')) + ': ' + esc(acc) + ' · ' + esc(t('matters')) + ': ' + esc(t('imp')[r.imp]) + '</div>' +
     '</div>' + (removable ? '<button type="button" class="btn small ghost" data-act="rm" data-id="' + q.id + '">' + esc(t('remove')) + '</button>' : '') + '</div>';
 }
@@ -958,11 +1005,11 @@ function resultHTML(res) {
   }
   if (res.n) h += '<div class="strip" aria-hidden="true">' + stripCells + '</div>' + countsHTML(c);
   var rankOf = { deal: 0, bad: 1, half: 2, ok: 3 };
-  var talk = res.items.filter(function (it) { return it.a.a !== it.b.a; }).sort(function (x, y) {
+  var talk = res.items.filter(function (it) { return it.a.m !== it.b.m; }).sort(function (x, y) {
     return rankOf[x.status] - rankOf[y.status] || (WEIGHTS[y.a.imp] + WEIGHTS[y.b.imp]) - (WEIGHTS[x.a.imp] + WEIGHTS[x.b.imp]);
   }).slice(0, 3);
   if (talk.length) h += '<div class="talk"><div class="talk-title">' + esc(t('talkTitle')) + '</div><ol>' + talk.map(function (it) {
-    return '<li>' + esc(qText(it.q)) + '<span>' + esc(t('you')) + ': ' + esc(oText(it.q, it.a.a)) + ' · ' + esc(t('them')) + ': ' + esc(oText(it.q, it.b.a)) + '</span></li>';
+    return '<li>' + esc(qText(it.q)) + '<span>' + esc(t('you')) + ': ' + esc(maskText(it.q, it.a.m)) + ' · ' + esc(t('them')) + ': ' + esc(maskText(it.q, it.b.m)) + '</span></li>';
   }).join('') + '</ol><p class="small muted">' + esc(t('talkHint')) + '</p></div>';
   function qList(arr) { return arr.map(function (q) { return qText(q); }).join(', '); }
   if (res.skippedByB.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByThem', { list: qList(res.skippedByB) })) + '</div></div>';
@@ -986,8 +1033,8 @@ function itemHTML(it) {
   if (it.dealB) tags += '<span class="tag">' + esc(t('theirDeal')) + '</span>';
   return '<div class="ci"><div class="ci-q">' + esc(qText(it.q)) + '</div>' +
     '<div class="ci-rows">' +
-      '<span class="ci-who">' + esc(t('you')) + '</span><span class="ci-ans">' + esc(oText(it.q, it.a.a)) + '</span>' + mark(it.bAccepts) +
-      '<span class="ci-who">' + esc(t('them')) + '</span><span class="ci-ans">' + esc(oText(it.q, it.b.a)) + '</span>' + mark(it.aAccepts) +
+      '<span class="ci-who">' + esc(t('you')) + '</span><span class="ci-ans">' + esc(maskText(it.q, it.a.m)) + '</span>' + mark(it.bAccepts) +
+      '<span class="ci-who">' + esc(t('them')) + '</span><span class="ci-ans">' + esc(maskText(it.q, it.b.m)) + '</span>' + mark(it.aAccepts) +
     '</div>' + (tags ? '<div class="tags">' + tags + '</div>' : '') + '</div>';
 }
 function mark(ok) { return '<span class="mark ' + (ok ? 'yes' : 'no') + '" aria-label="' + (ok ? '✓' : '✗') + '">' + (ok ? '✓' : '✗') + '</span>'; }
@@ -998,7 +1045,7 @@ function insideHTML(map) {
     .forEach(function (e) {
       var q = QBY.get(e[0]);
       if (!q) { unknown++; return; }
-      if (q.retired || e[1].a >= nOpts(q)) return;
+      if (q.retired || !e[1].m || (e[1].m >> nOpts(q))) return;
       rows += answerRowHTML(q, e[1], false);
     });
   return '<div class="result"><h3>' + esc(t('insideTitle')) + '</h3><p class="muted small">' + esc(t('insideMeta', { n: map.size })) + '</p>' +
@@ -1060,7 +1107,7 @@ document.addEventListener('click', function (ev) {
   if (act === 'edit') {
     if (!answers.size) {
       var d = decode(myCode());
-      if (d.map) d.map.forEach(function (r, id) { var q = QBY.get(id); if (q && !q.retired && r.a < nOpts(q)) answers.set(id, { a: r.a, acc: r.acc, imp: r.imp, t: true }); });
+      if (d.map) d.map.forEach(function (r, id) { var q = QBY.get(id); if (q && !q.retired && r.m && !(r.m >> nOpts(q))) answers.set(id, { m: r.m, acc: r.acc, imp: r.imp, t: true }); });
       saveDraft();
     }
     show('quiz'); return;

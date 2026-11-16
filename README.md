@@ -45,20 +45,24 @@ A question looks like this:
     pl: ["Kawa", "Herbata", "Obie", "Żadne"] } },
 ```
 
-`showIf: { id: 3, answer: 0 }` shows a question only when question 3 has option 0 picked. `options: "agree"` reuses a shared scale from `scales`; questions on that scale also get a "Copy as a post" button. `quick: true` puts a question in the 10-question quick version. A pack can carry a one-line `note` shown at its top.
+`showIf: { id: 3, answer: 0 }` shows a question only when question 3 has option 0 picked. `options: "agree"` reuses a shared scale from `scales`; questions on that scale also get a "Copy as a post" button. `quick: true` puts a question in the 10-question quick version. `multi: true` lets people pick several of their own answers; turning it on for an existing question doesn't break earlier codes. A pack can carry a one-line `note` shown at its top.
 
 ## Scoring
 
-For each question both people answered, each person gets points when the other's answer is one they accept, weighted by importance: doesn't matter 0, a little 1, a lot 10, dealbreaker 100. The match is the geometric mean of both sides, so it is only high when it works for both. With fewer than 8 shared answers the app shows the breakdown but no percentage. Dealbreakers are always listed separately, including ones the other person skipped. The result also picks the three biggest differences as first-date topics.
+For each question both people answered, each person gets points when the other's answer is one they accept (with several answers picked, one acceptable answer is enough), weighted by importance: doesn't matter 0, a little 1, a lot 10, dealbreaker 100. The match is the geometric mean of both sides, so it is only high when it works for both. With fewer than 8 shared answers the app shows the breakdown but no percentage. Dealbreakers are always listed separately, including ones the other person skipped. The result also picks the three biggest differences as first-date topics.
 
 ## Code format
 
 ```
-[version][N = highest answered id][bitmap of ids 1..N][1 byte per answered id][CRC-8]
-answer byte: bits 7-6 own option, bits 5-2 accepted partner options, bits 1-0 importance
+v1: [1][N = highest answered id][bitmap of ids 1..N][1 byte per answered id][CRC-8]
+    answer byte: bits 7-6 own option, bits 5-2 accepted partner options, bits 1-0 importance
+v2: same, plus a bitmap over the answered ids marking answers with several own options;
+    those take 2 bytes: (own options << 4 | importance), then accepted options
 ```
 
-The bytes are written in base62 (letters and digits only), so a long-press selects the whole code. About 27 characters for the quick version, about 90 for every question. The CRC catches a mistyped character 255 times out of 256.
+v2 is used only when someone actually picks several answers, so single-answer codes stay short and identical to v1.
+
+The bytes are written in base62 (letters and digits only), so a long-press selects the whole code. About 27 characters for the quick version, about 90 for every question, up to about 105 with many multi-answers. The CRC catches a mistyped character 255 times out of 256.
 
 ## Settings
 

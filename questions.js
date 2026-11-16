@@ -16,6 +16,8 @@
     pack       key of a pack from the "packs" list below
     sensitive  true shows a warning badge next to the question
     quick      true puts the question in the short "quick" version
+    multi      true lets people pick several of their own answers. Turning it on
+               for an existing question is safe: earlier codes still work.
     showIf     { id: X, answer: N } shows the question only when question X
                is answered with option N (options count from 0)
     text       the question in each language
@@ -171,14 +173,14 @@ window.PAIRCODE_DATA = {
         uk: ["Полегшення, час для себе", "Нормально", "Сумую", "Ніби щось не так"],
         pl: ["Ulgę, czas dla siebie", "Jest OK", "Tęsknię", "Że coś jest nie tak"] } },
 
-    { id: 9, pack: "lifestyle",
+    { id: 9, pack: "lifestyle", multi: true,
       text: { en: "Your rhythm", uk: "Твій ритм", pl: "Twój rytm" },
       options: {
         en: ["Early bird", "Night owl", "Shift work", "Flexible"],
         uk: ["Жайворонок", "Сова", "Змінна робота", "Гнучкий графік"],
         pl: ["Skowronek", "Sowa", "Praca zmianowa", "Elastycznie"] } },
 
-    { id: 10, pack: "lifestyle",
+    { id: 10, pack: "lifestyle", multi: true,
       text: { en: "Ideal weekend", uk: "Ідеальні вихідні", pl: "Idealny weekend" },
       options: {
         en: ["Rest at home", "Hobbies and projects", "Trips and nature", "Events and parties"],
@@ -199,7 +201,7 @@ window.PAIRCODE_DATA = {
         uk: ["Цього тижня", "Цього місяця", "Цього року", "Не пам'ятаю"],
         pl: ["W tym tygodniu", "W tym miesiącu", "W tym roku", "Nie pamiętam"] } },
 
-    { id: 12, pack: "lifestyle",
+    { id: 12, pack: "lifestyle", multi: true,
       text: { en: "Pets", uk: "Тварини", pl: "Zwierzęta" },
       options: {
         en: ["Have one", "Want one", "Either way", "No pets"],
@@ -326,15 +328,15 @@ window.PAIRCODE_DATA = {
         uk: ["Відпускаю, буває", "Спокійно скажу пізніше", "Одразу питаю, що сталося", "Вже злюсь, коли приходить"],
         pl: ["Odpuszczam, zdarza się", "Spokojnie wspomnę później", "Od razu pytam, co się stało", "Jestem zły/a, zanim przyjdzie"] } },
 
-    { id: 18, pack: "together",
+    { id: 18, pack: "together", multi: true,
       text: { en: "You show care through", uk: "Турботу проявляєш через", pl: "Troskę okazujesz przez" },
       options: "care" },
 
-    { id: 42, pack: "together",
+    { id: 42, pack: "together", multi: true,
       text: { en: "You most want to receive", uk: "Найбільше хочеш отримувати", pl: "Najbardziej chcesz dostawać" },
       options: "care" },
 
-    { id: 19, pack: "together",
+    { id: 19, pack: "together", multi: true,
       text: { en: "Your humour", uk: "Твій гумор", pl: "Twoje poczucie humoru" },
       options: {
         en: ["Dry", "Silly", "Dark", "Gentle"],
@@ -355,14 +357,14 @@ window.PAIRCODE_DATA = {
         uk: ["Традиційні", "Радше традиційні", "За сильними сторонами", "Строго порівну"],
         pl: ["Tradycyjne", "Raczej tradycyjne", "Według mocnych stron", "Ściśle po równo"] } },
 
-    { id: 33, pack: "together",
+    { id: 33, pack: "together", multi: true,
       text: { en: "Housework", uk: "Домашні справи", pl: "Obowiązki domowe" },
       options: {
         en: ["50/50", "By preference", "Mostly one partner", "Outsource what we can"],
         uk: ["50/50", "Хто що любить", "Здебільшого один", "Делегувати, що можна"],
         pl: ["50/50", "Kto co lubi", "Głównie jedna osoba", "Zlecać, co się da"] } },
 
-    { id: 34, pack: "together",
+    { id: 34, pack: "together", multi: true,
       text: { en: "After a hard day you want", uk: "Після важкого дня хочеш", pl: "Po ciężkim dniu chcesz" },
       options: {
         en: ["To talk it through", "Quiet time alone", "A distraction together", "Support, no advice"],
