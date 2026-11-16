@@ -15,19 +15,26 @@
     id         permanent number, see rule 1
     pack       key of a pack from the "packs" list below
     sensitive  true shows a warning badge next to the question
+    quick      true puts the question in the short "quick" version
     showIf     { id: X, answer: N } shows the question only when question X
                is answered with option N (options count from 0)
     text       the question in each language
     options    one list per language, or the name of a shared scale
 
+  Packs can have an optional  note  (one line per language) shown at the top.
+
   The page checks this file on load and lists any mistakes at the top.
-  Next free id: 54
+  Next free id: 65
 */
 window.PAIRCODE_DATA = {
   languages: ["en", "uk", "pl"],
 
   packs: [
     { key: "core",      title: { en: "Must-knows",          uk: "Головне",                   pl: "Najważniejsze" } },
+    { key: "odd",       title: { en: "Three odd ones",      uk: "Три дивні питання",         pl: "Trzy dziwne pytania" },
+      note: { en: "In OkCupid's data, couples who agreed on these three tended to stay together longer.",
+              uk: "За даними OkCupid, пари, які збігаються в цих трьох, зазвичай довше разом.",
+              pl: "Według danych OkCupid pary zgodne w tych trzech pytaniach zwykle są razem dłużej." } },
     { key: "lifestyle", title: { en: "Lifestyle",           uk: "Спосіб життя",              pl: "Styl życia" } },
     { key: "dating",    title: { en: "Dating",              uk: "Побачення",                 pl: "Randki" } },
     { key: "together",  title: { en: "Together",            uk: "Разом",                     pl: "Razem" } },
@@ -51,39 +58,39 @@ window.PAIRCODE_DATA = {
 
   questions: [
     /* ---------- Must-knows ---------- */
-    { id: 1, pack: "core",
+    { id: 1, pack: "core", quick: true,
       text: { en: "What are you looking for?", uk: "Що шукаєш?", pl: "Czego szukasz?" },
       options: {
         en: ["Marriage", "Long-term relationship", "See where it goes", "Something casual"],
         uk: ["Шлюб", "Довгі стосунки", "Подивимось, як піде", "Щось легке"],
         pl: ["Małżeństwa", "Stałego związku", "Zobaczymy, co wyjdzie", "Czegoś niezobowiązującego"] } },
 
-    { id: 2, pack: "core",
+    { id: 2, pack: "core", quick: true,
       text: { en: "Your age", uk: "Твій вік", pl: "Twój wiek" },
       options: {
         en: ["18–25", "26–32", "33–40", "41+"],
         uk: ["18–25", "26–32", "33–40", "41+"],
         pl: ["18–25", "26–32", "33–40", "41+"] } },
 
-    { id: 3, pack: "core",
+    { id: 3, pack: "core", quick: true,
       text: { en: "Do you have children?", uk: "Маєш дітей?", pl: "Masz dzieci?" },
       options: { en: ["Yes", "No"], uk: ["Так", "Ні"], pl: ["Tak", "Nie"] } },
 
-    { id: 48, pack: "core", showIf: { id: 3, answer: 0 },
+    { id: 48, pack: "core", quick: true, showIf: { id: 3, answer: 0 },
       text: { en: "Your children:", uk: "Твої діти:", pl: "Twoje dzieci:" },
       options: {
         en: ["Live with me", "I see them often", "I see them rarely"],
         uk: ["Живуть зі мною", "Бачу їх часто", "Бачу їх рідко"],
         pl: ["Mieszkają ze mną", "Widuję je często", "Widuję je rzadko"] } },
 
-    { id: 4, pack: "core",
+    { id: 4, pack: "core", quick: true,
       text: { en: "Do you want (more) children?", uk: "Хочеш дітей (ще)?", pl: "Chcesz (mieć więcej) dzieci?" },
       options: {
         en: ["Yes, within ~2 years", "Yes, someday", "Open to it", "No"],
         uk: ["Так, протягом ~2 років", "Так, колись", "Відкритий(-а) до цього", "Ні"],
         pl: ["Tak, w ciągu ~2 lat", "Tak, kiedyś", "Jestem otwarty/a", "Nie"] } },
 
-    { id: 5, pack: "core",
+    { id: 5, pack: "core", quick: true,
       text: { en: "Smoking", uk: "Куріння", pl: "Palenie" },
       options: {
         en: ["No", "Vape only", "Rarely, at parties", "Regularly"],
@@ -104,12 +111,21 @@ window.PAIRCODE_DATA = {
         uk: ["Щодня обов'язково", "Майже щодня", "Кілька разів на тиждень", "Коли є що сказати"],
         pl: ["Codziennie, koniecznie", "Prawie codziennie", "Kilka razy w tygodniu", "Kiedy jest coś do powiedzenia"] } },
 
-    { id: 21, pack: "core",
+    { id: 21, pack: "core", retired: true, /* replaced by 54 */
       text: { en: "With money you are", uk: "З грошима ти", pl: "Z pieniędzmi jesteś" },
       options: {
         en: ["A saver", "Mostly a saver", "Mostly a spender", "A spender"],
         uk: ["Ощадливий(-а)", "Радше ощадливий(-а)", "Радше транжира", "Транжира"],
         pl: ["Oszczędny/a", "Raczej oszczędny/a", "Raczej rozrzutny/a", "Rozrzutny/a"] } },
+
+    { id: 54, pack: "core", quick: true,
+      text: { en: "You unexpectedly get a month's salary. First thing you do?",
+              uk: "Несподівано отримуєш місячну зарплату. Що робиш першим?",
+              pl: "Niespodziewanie dostajesz równowartość miesięcznej pensji. Co robisz najpierw?" },
+      options: {
+        en: ["Save or invest it", "Pay something off", "A trip or an experience", "Treat myself and people close to me"],
+        uk: ["Відкладаю чи інвестую", "Гашу борг чи кредит", "Поїздка чи враження", "Балую себе й близьких"],
+        pl: ["Odkładam lub inwestuję", "Spłacam coś", "Wyjazd albo przeżycie", "Rozpieszczam siebie i bliskich"] } },
 
     { id: 27, pack: "core",
       text: { en: "Before the first date", uk: "Перед першим побаченням", pl: "Przed pierwszą randką" },
@@ -117,6 +133,19 @@ window.PAIRCODE_DATA = {
         en: ["Meet as soon as possible", "Text for about a week", "Text for a few weeks", "Friends first"],
         uk: ["Зустрітися якнайшвидше", "Переписка десь тиждень", "Переписка кілька тижнів", "Спершу дружба"],
         pl: ["Spotkać się jak najszybciej", "Pisać ok. tygodnia", "Pisać kilka tygodni", "Najpierw przyjaźń"] } },
+
+    /* ---------- Three odd ones (OkCupid's long-term predictors) ---------- */
+    { id: 62, pack: "odd", quick: true,
+      text: { en: "Do you like horror movies?", uk: "Любиш фільми жахів?", pl: "Lubisz horrory?" },
+      options: { en: ["Yes", "No"], uk: ["Так", "Ні"], pl: ["Tak", "Nie"] } },
+
+    { id: 63, pack: "odd",
+      text: { en: "Have you ever travelled alone in another country?", uk: "Подорожував(-ла) колись сам(а) по іншій країні?", pl: "Podróżowałeś/aś kiedyś sam/a po innym kraju?" },
+      options: { en: ["Yes", "No"], uk: ["Так", "Ні"], pl: ["Tak", "Nie"] } },
+
+    { id: 64, pack: "odd", quick: true,
+      text: { en: "Wouldn't it be fun to drop everything and live on a sailboat?", uk: "Хіба не класно було б кинути все й жити на яхті?", pl: "Czy nie byłoby fajnie rzucić wszystko i zamieszkać na żaglówce?" },
+      options: { en: ["Yes", "No"], uk: ["Так", "Ні"], pl: ["Tak", "Nie"] } },
 
     /* ---------- Lifestyle ---------- */
     { id: 7, pack: "lifestyle",
@@ -126,12 +155,21 @@ window.PAIRCODE_DATA = {
         uk: ["Домосід(-ка)", "Вузьке коло", "Збалансовано", "Більшість вихідних на людях"],
         pl: ["Domator/ka", "Wąskie grono", "Pół na pół", "Większość weekendów poza domem"] } },
 
-    { id: 8, pack: "lifestyle",
+    { id: 8, pack: "lifestyle", retired: true, /* replaced by 55 */
       text: { en: "Personal space", uk: "Особистий простір", pl: "Przestrzeń osobista" },
       options: {
         en: ["I need lots of time alone", "Some", "A little", "Together as much as possible"],
         uk: ["Потрібно багато часу наодинці", "Трохи", "Небагато", "Разом якомога більше"],
         pl: ["Potrzebuję dużo czasu dla siebie", "Trochę", "Niewiele", "Razem jak najwięcej"] } },
+
+    { id: 55, pack: "lifestyle",
+      text: { en: "Your partner is away for a week. By day three you feel",
+              uk: "Партнер(-ка) поїхав(-ла) на тиждень. На третій день ти відчуваєш",
+              pl: "Partner/ka wyjechał/a na tydzień. Trzeciego dnia czujesz" },
+      options: {
+        en: ["Relieved, time for myself", "Fine", "I miss them", "Like something's wrong"],
+        uk: ["Полегшення, час для себе", "Нормально", "Сумую", "Ніби щось не так"],
+        pl: ["Ulgę, czas dla siebie", "Jest OK", "Tęsknię", "Że coś jest nie tak"] } },
 
     { id: 9, pack: "lifestyle",
       text: { en: "Your rhythm", uk: "Твій ритм", pl: "Twój rytm" },
@@ -147,12 +185,19 @@ window.PAIRCODE_DATA = {
         uk: ["Відпочинок вдома", "Хобі та проєкти", "Поїздки й природа", "Події та вечірки"],
         pl: ["Odpoczynek w domu", "Hobby i projekty", "Wycieczki i natura", "Wydarzenia i imprezy"] } },
 
-    { id: 11, pack: "lifestyle",
+    { id: 11, pack: "lifestyle", retired: true, /* replaced by 59 */
       text: { en: "Physical activity", uk: "Фізична активність", pl: "Aktywność fizyczna" },
       options: {
         en: ["Very active", "Moderate", "Light", "Not active"],
         uk: ["Дуже активний(-а)", "Помірно", "Трохи", "Неактивний(-а)"],
         pl: ["Bardzo aktywny/a", "Umiarkowanie", "Trochę", "Nieaktywny/a"] } },
+
+    { id: 59, pack: "lifestyle",
+      text: { en: "Last time you did an hour of sport", uk: "Коли востаннє займався(-лась) спортом годину?", pl: "Kiedy ostatnio ćwiczyłeś/aś przez godzinę?" },
+      options: {
+        en: ["This week", "This month", "This year", "Can't remember"],
+        uk: ["Цього тижня", "Цього місяця", "Цього року", "Не пам'ятаю"],
+        pl: ["W tym tygodniu", "W tym miesiącu", "W tym roku", "Nie pamiętam"] } },
 
     { id: 12, pack: "lifestyle",
       text: { en: "Pets", uk: "Тварини", pl: "Zwierzęta" },
@@ -182,12 +227,21 @@ window.PAIRCODE_DATA = {
         uk: ["Залишаюсь, де є", "Готовий(-а) в межах країни", "Готовий(-а) за кордон", "Планую переїхати"],
         pl: ["Zostaję tam, gdzie jestem", "Mogę w obrębie kraju", "Mogę za granicę", "Planuję się przenieść"] } },
 
-    { id: 43, pack: "lifestyle",
+    { id: 43, pack: "lifestyle", retired: true, /* replaced by 60 */
       text: { en: "Goals", uk: "Цілі", pl: "Cele" },
       options: {
         en: ["Clear goals, working on them", "Clear goals, not started yet", "Still figuring it out", "Happy as things are"],
         uk: ["Чіткі цілі, працюю над ними", "Чіткі цілі, ще не почав(-ла)", "Ще шукаю себе", "Мене все влаштовує"],
         pl: ["Jasne cele, pracuję nad nimi", "Jasne cele, jeszcze nie zacząłem/zaczęłam", "Wciąż szukam", "Jest dobrze, jak jest"] } },
+
+    { id: 60, pack: "lifestyle",
+      text: { en: "In the past year you learned something new just for yourself",
+              uk: "За останній рік вчився(-лась) чогось нового просто для себе",
+              pl: "W ostatnim roku uczyłeś/aś się czegoś nowego tylko dla siebie" },
+      options: {
+        en: ["Yes, still at it", "Yes, then dropped it", "Planned to", "No"],
+        uk: ["Так, і досі", "Так, але кинув(-ла)", "Планував(-ла)", "Ні"],
+        pl: ["Tak, nadal", "Tak, ale rzuciłem/am", "Planowałem/am", "Nie"] } },
 
     /* ---------- Dating ---------- */
     { id: 28, pack: "dating",
@@ -197,12 +251,21 @@ window.PAIRCODE_DATA = {
         uk: ["Чоловік", "Будь-хто", "Жінка"],
         pl: ["Mężczyzna", "Ktokolwiek", "Kobieta"] } },
 
-    { id: 22, pack: "dating",
+    { id: 22, pack: "dating", retired: true, /* replaced by 57 */
       text: { en: "The bill on a first date", uk: "Рахунок на першому побаченні", pl: "Rachunek na pierwszej randce" },
       options: {
         en: ["The man pays", "Whoever invited", "Split", "Take turns"],
         uk: ["Платить чоловік", "Хто запросив", "Навпіл", "По черзі"],
         pl: ["Płaci mężczyzna", "Kto zaprosił", "Po połowie", "Na zmianę"] } },
+
+    { id: 57, pack: "dating", quick: true,
+      text: { en: "They pick an expensive place for a date. You",
+              uk: "Інша людина обирає дороге місце для побачення. Ти",
+              pl: "Druga osoba wybiera drogie miejsce na randkę. Ty" },
+      options: {
+        en: ["Happily pay", "Suggest splitting", "Suggest somewhere cheaper", "Expect them to pay, they chose it"],
+        uk: ["Охоче плачу", "Пропоную навпіл", "Пропоную щось дешевше", "Чекаю, що заплатить той, хто обрав"],
+        pl: ["Chętnie płacę", "Proponuję po połowie", "Proponuję coś tańszego", "Oczekuję, że zapłaci ten, kto wybrał"] } },
 
     { id: 29, pack: "dating",
       text: { en: "Flowers and small gifts", uk: "Квіти й дрібні подарунки", pl: "Kwiaty i drobne prezenty" },
@@ -233,19 +296,35 @@ window.PAIRCODE_DATA = {
         uk: ["Протягом року", "Через 1–2 роки", "Після шлюбу", "Краще окремо"],
         pl: ["W ciągu roku", "Po 1–2 latach", "Po ślubie", "Wolę osobno"] } },
 
-    { id: 16, pack: "together",
+    { id: 16, pack: "together", retired: true, /* replaced by 61 */
       text: { en: "Visiting parents", uk: "Візити до батьків", pl: "Wizyty u rodziców" },
       options: {
         en: ["Weekly", "Every 2 weeks", "Monthly", "Rarely"],
         uk: ["Щотижня", "Раз на 2 тижні", "Раз на місяць", "Рідко"],
         pl: ["Co tydzień", "Co 2 tygodnie", "Raz w miesiącu", "Rzadko"] } },
 
-    { id: 17, pack: "together",
+    { id: 61, pack: "together",
+      text: { en: "Your mum calls in the middle of a date. You", uk: "Мама дзвонить посеред побачення. Ти", pl: "Mama dzwoni w trakcie randki. Ty" },
+      options: {
+        en: ["Answer", "Text \u201clater\u201d", "Call back after", "Depends on the mum"],
+        uk: ["Відповідаю", "Пишу «пізніше»", "Передзвоню після", "Залежить від мами"],
+        pl: ["Odbieram", "Piszę „później”", "Oddzwonię po", "Zależy od mamy"] } },
+
+    { id: 17, pack: "together", retired: true, /* replaced by 56 */
       text: { en: "In a conflict", uk: "У конфлікті", pl: "W konflikcie" },
       options: {
         en: ["Talk right away", "Cool down, then talk", "Talk the next day or later", "Let it go"],
         uk: ["Говорю одразу", "Охолону, тоді говорю", "Говорю наступного дня чи пізніше", "Відпускаю"],
         pl: ["Rozmawiam od razu", "Ochłonę, potem rozmawiam", "Rozmawiam następnego dnia lub później", "Odpuszczam"] } },
+
+    { id: 56, pack: "together", quick: true,
+      text: { en: "They're 40 minutes late without a text. You",
+              uk: "Запізнюється на 40 хвилин і не написав(-ла). Ти",
+              pl: "Spóźnia się 40 minut bez wiadomości. Ty" },
+      options: {
+        en: ["Let it go, it happens", "Mention it calmly later", "Ask right away what happened", "Already upset when they arrive"],
+        uk: ["Відпускаю, буває", "Спокійно скажу пізніше", "Одразу питаю, що сталося", "Вже злюсь, коли приходить"],
+        pl: ["Odpuszczam, zdarza się", "Spokojnie wspomnę później", "Od razu pytam, co się stało", "Jestem zły/a, zanim przyjdzie"] } },
 
     { id: 18, pack: "together",
       text: { en: "You show care through", uk: "Турботу проявляєш через", pl: "Troskę okazujesz przez" },
@@ -319,12 +398,21 @@ window.PAIRCODE_DATA = {
         uk: ["Багато ділюсь", "Дещо", "Лише загальне", "Нічого особистого"],
         pl: ["Dużo opowiadam", "Trochę", "Tylko ogólnie", "Nic prywatnego"] } },
 
-    { id: 37, pack: "trust",
+    { id: 37, pack: "trust", retired: true, /* replaced by 58 */
       text: { en: "Phones", uk: "Телефони", pl: "Telefony" },
       options: {
         en: ["Open to each other", "Private, nothing to hide", "Fully private"],
         uk: ["Відкриті одне для одного", "Особисті, але нічого не приховую", "Повністю особисті"],
         pl: ["Otwarte dla siebie", "Prywatne, nic do ukrycia", "Całkiem prywatne"] } },
+
+    { id: 58, pack: "trust",
+      text: { en: "Their phone lights up: \u201cmiss you 😘\u201d from a name you don't know. You",
+              uk: "У партнера(-ки) на телефоні: «сумую 😘» від незнайомого імені. Ти",
+              pl: "Na telefonie partnera/ki: „tęsknię 😘” od nieznanego imienia. Ty" },
+      options: {
+        en: ["Ask calmly", "Wait for them to mention it", "Assume it's nothing", "Look at the phone"],
+        uk: ["Спокійно питаю", "Чекаю, що сам(а) скаже", "Вважаю, що це нічого", "Дивлюсь у телефон"],
+        pl: ["Spokojnie pytam", "Czekam, aż sam/a powie", "Uznaję, że to nic", "Zaglądam do telefonu"] } },
 
     { id: 38, pack: "trust",
       text: { en: "Close friends of the opposite sex", uk: "Близькі друзі протилежної статі", pl: "Bliscy przyjaciele płci przeciwnej" },

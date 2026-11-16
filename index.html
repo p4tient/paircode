@@ -171,6 +171,17 @@ p { margin: 0; }
 .q-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .skipped { font-size: 13px; color: var(--muted); }
 
+.modes { display: flex; gap: 6px; flex-wrap: wrap; }
+.modes button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pack-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; }
+.pack-note { padding: 12px 16px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); }
+.talk { background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.talk-title { font: 600 14px/1.25 var(--display); }
+.talk ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.talk li { font-weight: 600; }
+.talk li span { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
+
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bar); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
 .dock-count { font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -270,7 +281,7 @@ var WEIGHTS = [0, 1, 10, 100]; // doesn't matter, a little, a lot, dealbreaker
 var MIN_SHARED = 8;         // fewer shared answers than this: no percentage, breakdown only
 var LANGS = ['uk', 'pl', 'en'];
 var LANG_LABEL = { uk: 'UA', pl: 'PL', en: 'EN' };
-var STORE = { lang: 'paircode.lang', draft: 'paircode.draft', code: 'paircode.code' };
+var STORE = { lang: 'paircode.lang', draft: 'paircode.draft', code: 'paircode.code', mode: 'paircode.mode' };
 
 /* ================= Interface text ================= */
 var UI = {
@@ -324,7 +335,13 @@ var UI = {
     skippedByYou: 'You skipped their dealbreakers: {list}',
     unknownNote: "{n} answers come from a newer question list and weren't counted. Reload the page.",
     insideTitle: "What's in this code", insideMeta: '{n} answers',
-    yourDeal: 'Your dealbreaker', theirDeal: 'Their dealbreaker'
+    yourDeal: 'Your dealbreaker', theirDeal: 'Their dealbreaker',
+    quickStart: 'Quick start · {n} questions', allQ: 'All {n} questions', quickTitle: 'Quick version',
+    modeQuick: 'Quick · {n}', modeAll: 'All · {n}',
+    talkTitle: 'Talk about these on a first date', talkHint: 'Ask each other why you picked that.',
+    copyAsPost: 'Copy as a post',
+    hotPostCode: '{q}\n\nAgree? Compare your answers with mine: {link}',
+    hotPost: '{q}\n\nAgree? Answer and compare: {link}'
   },
   uk: {
     navQuestions: 'Питання', navMyCode: 'Мій код', navCompare: 'Порівняти',
@@ -376,7 +393,13 @@ var UI = {
     skippedByYou: 'Ти пропустив(-ла) принципові питання іншої людини: {list}',
     unknownNote: 'Відповідей з новішого списку питань: {n}. Їх не враховано. Онови сторінку.',
     insideTitle: 'Що в цьому коді', insideMeta: 'Відповідей: {n}',
-    yourDeal: 'Принципово для тебе', theirDeal: 'Принципово для іншої людини'
+    yourDeal: 'Принципово для тебе', theirDeal: 'Принципово для іншої людини',
+    quickStart: 'Швидкий старт · {n} питань', allQ: 'Усі питання ({n})', quickTitle: 'Швидка версія',
+    modeQuick: 'Швидко · {n}', modeAll: 'Усі · {n}',
+    talkTitle: 'Про що поговорити на першому побаченні', talkHint: 'Спитайте одне одного, чому обрали саме це.',
+    copyAsPost: 'Скопіювати як пост',
+    hotPostCode: '{q}\n\nЗгоден(-на)? Порівняй свої відповіді з моїми: {link}',
+    hotPost: '{q}\n\nЗгоден(-на)? Відповідай і порівнюй: {link}'
   },
   pl: {
     navQuestions: 'Pytania', navMyCode: 'Mój kod', navCompare: 'Porównaj',
@@ -428,7 +451,13 @@ var UI = {
     skippedByYou: 'Pominąłeś/ęłaś warunki konieczne drugiej osoby: {list}',
     unknownNote: 'Odpowiedzi z nowszej listy pytań: {n}. Nie zostały uwzględnione. Odśwież stronę.',
     insideTitle: 'Co jest w tym kodzie', insideMeta: 'Odpowiedzi: {n}',
-    yourDeal: 'Twój warunek konieczny', theirDeal: 'Warunek drugiej osoby'
+    yourDeal: 'Twój warunek konieczny', theirDeal: 'Warunek drugiej osoby',
+    quickStart: 'Szybki start · {n} pytań', allQ: 'Wszystkie pytania ({n})', quickTitle: 'Szybka wersja',
+    modeQuick: 'Szybko · {n}', modeAll: 'Wszystkie · {n}',
+    talkTitle: 'O czym pogadać na pierwszej randce', talkHint: 'Zapytajcie się nawzajem, dlaczego tak wybraliście.',
+    copyAsPost: 'Kopiuj jako post',
+    hotPostCode: '{q}\n\nZgadzasz się? Porównaj swoje odpowiedzi z moimi: {link}',
+    hotPost: '{q}\n\nZgadzasz się? Odpowiedz i porównaj: {link}'
   }
 };
 
@@ -640,9 +669,12 @@ function displayOrder() { var m = new Map(); ACTIVE.forEach(function (q, i) { m.
 /* ================= View state ================= */
 var view = 'home';
 var openPacks = new Set(['core']);
+var quizMode = 'quick';
+function quickCount() { return ACTIVE.filter(function (q) { return q.quick && !q.showIf; }).length; }
 var cmp = { theirs: '', mine: '', mode: '', error: '', result: null, single: null };
 
-function shareLink(code) { return (SHARE_BASE || location.href.split('#')[0]) + '#' + code; }
+function baseLink() { return SHARE_BASE || location.href.split('#')[0]; }
+function shareLink(code) { return baseLink() + '#' + code; }
 var memCode = '';  // used when browser storage is blocked
 function myCode() { return storeGet(STORE.code) || memCode; }
 
@@ -687,14 +719,16 @@ function renderChrome() {
 
 /* ---------- Home ---------- */
 function renderHome() {
-  var n = answers.size;
+  var n = publicAnswers().size;
   var sample = ['ok','ok','half','ok','ok','bad','ok','ok','half','ok','ok','ok','half','bad'];
   $('#v-home').innerHTML =
     '<div class="hero">' +
       '<h1>' + esc(t('heroTitle')) + '</h1>' +
       '<p class="lead">' + esc(t('heroLead')) + '</p>' +
       '<div class="actions">' +
-        '<button type="button" class="btn primary" data-go="quiz">' + esc(n ? t('cont', { n: n }) : t('start')) + '</button>' +
+        (n ? '<button type="button" class="btn primary" data-go="quiz">' + esc(t('cont', { n: n })) + '</button>'
+           : (quickCount() ? '<button type="button" class="btn primary" data-act="mode" data-mode="quick">' + esc(t('quickStart', { n: quickCount() })) + '</button>' : '') +
+             '<button type="button" class="btn ' + (quickCount() ? 'ghost' : 'primary') + '" data-act="mode" data-mode="all">' + esc(t('allQ', { n: ACTIVE.length })) + '</button>') +
         '<button type="button" class="btn ghost" data-go="compare">' + esc(t('compareCodes')) + '</button>' +
       '</div>' +
     '</div>' +
@@ -721,6 +755,7 @@ function countsHTML(c) {
 function cardHTML(q) {
   var r = answers.get(q.id);
   var opts = optionsFor(q, lang);
+  var hot = q.options === 'agree' ? '<button type="button" class="linkbtn" data-act="hotpost">' + esc(t('copyAsPost')) + '</button>' : '';
   var h = '<article class="q' + (r ? ' is-on' : '') + '" data-id="' + q.id + '">';
   h += '<div class="q-head"><h3 class="q-text">' + esc(qText(q)) + '</h3>' +
        (q.sensitive ? '<span class="badge">⚠ ' + esc(t('sensitive')) + '</span>' : '') + '</div>';
@@ -737,23 +772,34 @@ function cardHTML(q) {
       '<div class="seg" role="group">' + t('imp').map(function (lab, k) {
         return '<button type="button"' + (k === 3 ? ' class="deal"' : '') + ' data-act="imp" data-i="' + k + '" aria-pressed="' + (r.imp === k) + '">' + esc(lab) + '</button>';
       }).join('') + '</div></div>' +
-      '<div class="q-foot"><span></span><button type="button" class="linkbtn" data-act="skip">' + esc(t('skip')) + '</button></div>';
+      '<div class="q-foot">' + (hot || '<span></span>') + '<button type="button" class="linkbtn" data-act="skip">' + esc(t('skip')) + '</button></div>';
   } else {
-    h += '<div class="q-foot"><span class="skipped">' + esc(t('skipped')) + '</span></div>';
+    h += '<div class="q-foot"><span class="skipped">' + esc(t('skipped')) + '</span>' + hot + '</div>';
   }
   return h + '</article>';
 }
 function renderQuiz() {
   var h = '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('publicWarn')) + '</div></div>' +
           '<p class="muted small">' + esc(t('quizHint')) + '</p>';
-  PACKS.forEach(function (p) {
-    var qs = ACTIVE.filter(function (q) { return q.pack === p.key && isShown(q, answers); });
-    if (!qs.length) return;
-    var done = qs.filter(function (q) { return answers.has(q.id); }).length;
-    h += '<details class="pack" data-pack="' + esc(p.key) + '"' + (openPacks.has(p.key) ? ' open' : '') + '>' +
-         '<summary><span class="pack-title">' + esc(p.title[lang] || p.title.en) + '</span><span class="pack-count">' + done + '/' + qs.length + '</span></summary>' +
-         '<div class="pack-body">' + qs.map(cardHTML).join('') + '</div></details>';
-  });
+  var nq = quickCount();
+  if (!nq) quizMode = 'all';
+  if (nq) h += '<div class="modes" role="group">' +
+    '<button type="button" data-act="mode" data-mode="quick" aria-pressed="' + (quizMode === 'quick') + '">' + esc(t('modeQuick', { n: nq })) + '</button>' +
+    '<button type="button" data-act="mode" data-mode="all" aria-pressed="' + (quizMode === 'all') + '">' + esc(t('modeAll', { n: ACTIVE.length })) + '</button></div>';
+  function doneOf(qs) { return qs.filter(function (q) { return answers.has(q.id); }).length; }
+  if (quizMode === 'quick') {
+    var quick = ACTIVE.filter(function (q) { return q.quick && isShown(q, answers); });
+    h += '<div class="pack"><div class="pack-head"><span class="pack-title">' + esc(t('quickTitle')) + '</span><span class="pack-count">' + doneOf(quick) + '/' + quick.length + '</span></div>' +
+         '<div class="pack-body">' + quick.map(cardHTML).join('') + '</div></div>';
+  } else {
+    PACKS.forEach(function (p) {
+      var qs = ACTIVE.filter(function (q) { return q.pack === p.key && isShown(q, answers); });
+      if (!qs.length) return;
+      h += '<details class="pack" data-pack="' + esc(p.key) + '"' + (openPacks.has(p.key) ? ' open' : '') + '>' +
+           '<summary><span class="pack-title">' + esc(p.title[lang] || p.title.en) + '</span><span class="pack-count">' + doneOf(qs) + '/' + qs.length + '</span></summary>' +
+           '<div class="pack-body">' + (p.note ? '<p class="pack-note">' + esc(p.note[lang] || p.note.en) + '</p>' : '') + qs.map(cardHTML).join('') + '</div></details>';
+    });
+  }
   $('#v-quiz').innerHTML = h;
 }
 function renderDock() {
@@ -911,6 +957,13 @@ function resultHTML(res) {
     h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('tooFew', { n: res.n, min: MIN_SHARED })) + '</div></div>';
   }
   if (res.n) h += '<div class="strip" aria-hidden="true">' + stripCells + '</div>' + countsHTML(c);
+  var rankOf = { deal: 0, bad: 1, half: 2, ok: 3 };
+  var talk = res.items.filter(function (it) { return it.a.a !== it.b.a; }).sort(function (x, y) {
+    return rankOf[x.status] - rankOf[y.status] || (WEIGHTS[y.a.imp] + WEIGHTS[y.b.imp]) - (WEIGHTS[x.a.imp] + WEIGHTS[x.b.imp]);
+  }).slice(0, 3);
+  if (talk.length) h += '<div class="talk"><div class="talk-title">' + esc(t('talkTitle')) + '</div><ol>' + talk.map(function (it) {
+    return '<li>' + esc(qText(it.q)) + '<span>' + esc(t('you')) + ': ' + esc(oText(it.q, it.a.a)) + ' · ' + esc(t('them')) + ': ' + esc(oText(it.q, it.b.a)) + '</span></li>';
+  }).join('') + '</ol><p class="small muted">' + esc(t('talkHint')) + '</p></div>';
   function qList(arr) { return arr.map(function (q) { return qText(q); }).join(', '); }
   if (res.skippedByB.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByThem', { list: qList(res.skippedByB) })) + '</div></div>';
   if (res.skippedByA.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByYou', { list: qList(res.skippedByA) })) + '</div></div>';
@@ -965,8 +1018,17 @@ function selectFallback(el) {
   var range = document.createRange(); range.selectNodeContents(el);
   var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
 }
+function legacyCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+  document.body.removeChild(ta);
+  return ok;
+}
 function copy(text, fallbackEl) {
-  var fail = function () { selectFallback(fallbackEl); toast(t('copyFail')); };
+  var fail = function () { if (legacyCopy(text)) { toast(t('copied')); return; } selectFallback(fallbackEl); toast(t('copyFail')); };
   try {
     var p = navigator.clipboard && navigator.clipboard.writeText(text);
     if (p && p.then) p.then(function () { toast(t('copied')); }, fail); else fail();
@@ -981,6 +1043,12 @@ document.addEventListener('click', function (ev) {
   if (el.dataset.go) { show(el.dataset.go); return; }
   var act = el.dataset.act; if (!act) return;
   if (act === 'ans' || act === 'acc' || act === 'imp' || act === 'skip') { onQuizAction(el); return; }
+  if (act === 'mode') { quizMode = el.dataset.mode === 'all' ? 'all' : 'quick'; storeSet(STORE.mode, quizMode); show('quiz'); return; }
+  if (act === 'hotpost') {
+    var hq = QBY.get(+el.closest('.q').dataset.id), mine = myCode();
+    copy(mine ? t('hotPostCode', { q: qText(hq), link: shareLink(mine) }) : t('hotPost', { q: qText(hq), link: baseLink() }));
+    return;
+  }
   if (act === 'rm') { answers.delete(+el.dataset.id); saveDraft(); renderReview(); return; }
   if (act === 'create') {
     var pub = publicAnswers(); if (!pub.size) return;
@@ -1024,6 +1092,7 @@ window.addEventListener('hashchange', readHash);
 /* ================= Start ================= */
 loadData();
 loadDraft();
+quizMode = storeGet(STORE.mode) === 'all' ? 'all' : 'quick';
 (function pickLang() {
   var saved = storeGet(STORE.lang);
   if (saved && UI[saved]) { lang = saved; return; }

@@ -45,11 +45,11 @@ A question looks like this:
     pl: ["Kawa", "Herbata", "Obie", "Żadne"] } },
 ```
 
-`showIf: { id: 3, answer: 0 }` shows a question only when question 3 has option 0 picked. `options: "agree"` reuses a shared scale from `scales`.
+`showIf: { id: 3, answer: 0 }` shows a question only when question 3 has option 0 picked. `options: "agree"` reuses a shared scale from `scales`; questions on that scale also get a "Copy as a post" button. `quick: true` puts a question in the 10-question quick version. A pack can carry a one-line `note` shown at its top.
 
 ## Scoring
 
-For each question both people answered, each person gets points when the other's answer is one they accept, weighted by importance: doesn't matter 0, a little 1, a lot 10, dealbreaker 100. The match is the geometric mean of both sides, so it is only high when it works for both. With fewer than 8 shared answers the app shows the breakdown but no percentage. Dealbreakers are always listed separately, including ones the other person skipped.
+For each question both people answered, each person gets points when the other's answer is one they accept, weighted by importance: doesn't matter 0, a little 1, a lot 10, dealbreaker 100. The match is the geometric mean of both sides, so it is only high when it works for both. With fewer than 8 shared answers the app shows the breakdown but no percentage. Dealbreakers are always listed separately, including ones the other person skipped. The result also picks the three biggest differences as first-date topics.
 
 ## Code format
 
@@ -58,7 +58,7 @@ For each question both people answered, each person gets points when the other's
 answer byte: bits 7-6 own option, bits 5-2 accepted partner options, bits 1-0 importance
 ```
 
-The bytes are written in base62 (letters and digits only), so a long-press selects the whole code. About 22 characters for the must-knows, about 85 for every question. The CRC catches a mistyped character 255 times out of 256.
+The bytes are written in base62 (letters and digits only), so a long-press selects the whole code. About 27 characters for the quick version, about 90 for every question. The CRC catches a mistyped character 255 times out of 256.
 
 ## Settings
 
