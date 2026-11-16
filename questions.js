@@ -18,6 +18,15 @@
     quick      true puts the question in the short "quick" version
     multi      true lets people pick several of their own answers. Turning it on
                for an existing question is safe: earlier codes still work.
+    scoring    "all" means every option the partner picked must be acceptable
+               (used for habits). Default: one acceptable option is enough.
+    none       index of a "None of these" option: picking it clears the others,
+               and it always counts as acceptable.
+    accept     custom label for the "partner answers you'd accept" row
+    mirrorOf   id of the question this one mirrors (the same rule for him / for her).
+               Different answers to the two show up in comparisons.
+    added      date the question was added, "YYYY-MM-DD". For two weeks it gets a
+               "New" badge, and the newest statement shows on the home screen.
     showIf     { id: X, answer: N } shows the question only when question X
                is answered with option N (options count from 0)
     text       the question in each language
@@ -26,7 +35,7 @@
   Packs can have an optional  note  (one line per language) shown at the top.
 
   The page checks this file on load and lists any mistakes at the top.
-  Next free id: 65
+  Next free id: 80
 */
 window.PAIRCODE_DATA = {
   languages: ["en", "uk", "pl"],
@@ -38,10 +47,18 @@ window.PAIRCODE_DATA = {
               uk: "За даними OkCupid, пари, які збігаються в цих трьох, зазвичай довше разом.",
               pl: "Według danych OkCupid pary zgodne w tych trzech pytaniach zwykle są razem dłużej." } },
     { key: "lifestyle", title: { en: "Lifestyle",           uk: "Спосіб життя",              pl: "Styl życia" } },
+    { key: "habits",    title: { en: "Habits",              uk: "Звички",                    pl: "Nawyki" },
+      note: { en: "Tick your own habits, then the ones you can live with in a partner.",
+              uk: "Познач свої звички, а потім ті, з якими зможеш жити в партнера.",
+              pl: "Zaznacz swoje nawyki, a potem te, z którymi wytrzymasz u partnera." } },
     { key: "dating",    title: { en: "Dating",              uk: "Побачення",                 pl: "Randki" } },
     { key: "together",  title: { en: "Together",            uk: "Разом",                     pl: "Razem" } },
     { key: "trust",     title: { en: "Privacy and trust",   uk: "Довіра й приватність",      pl: "Zaufanie i prywatność" } },
     { key: "beliefs",   title: { en: "Beliefs and personal", uk: "Погляди й особисте",       pl: "Poglądy i sprawy osobiste" } },
+    { key: "mirror",    title: { en: "Double standards",    uk: "Подвійні стандарти",        pl: "Podwójne standardy" },
+      note: { en: "Each rule is asked twice, once for him and once for her. Different answers show up in the comparison.",
+              uk: "Кожне правило питаємо двічі: для нього й для неї. Різні відповіді буде видно в порівнянні.",
+              pl: "Każdą zasadę pytamy dwa razy: dla niego i dla niej. Różne odpowiedzi będą widoczne w porównaniu." } },
     { key: "hottakes",  title: { en: "Hot takes",           uk: "Гарячі теми",               pl: "Gorące tematy" } }
   ],
 
@@ -245,6 +262,58 @@ window.PAIRCODE_DATA = {
         uk: ["Так, і досі", "Так, але кинув(-ла)", "Планував(-ла)", "Ні"],
         pl: ["Tak, nadal", "Tak, ale rzuciłem/am", "Planowałem/am", "Nie"] } },
 
+    { id: 73, pack: "lifestyle", added: "2026-11-16",
+      text: { en: "Right now your flat looks", uk: "Зараз твоя квартира виглядає", pl: "Teraz twoje mieszkanie wygląda" },
+      options: {
+        en: ["Tidy, as always", "Lived-in but fine", "Messy, cleaning at the weekend", "Better not open the wardrobe"],
+        uk: ["Охайно, як завжди", "Житлово, але нормально", "Безлад, приберу на вихідних", "Шафу краще не відкривати"],
+        pl: ["Schludnie, jak zawsze", "Mieszkalnie, ale w porządku", "Bałagan, posprzątam w weekend", "Szafy lepiej nie otwierać"] } },
+
+    { id: 74, pack: "lifestyle", multi: true, added: "2026-11-16",
+      text: { en: "A typical free evening", uk: "Типовий вільний вечір", pl: "Typowy wolny wieczór" },
+      options: {
+        en: ["Out or with people", "A hobby or project", "Series or games", "Scrolling"],
+        uk: ["Десь із людьми", "Хобі чи проєкт", "Серіали чи ігри", "Скролінг"],
+        pl: ["Na mieście albo ze znajomymi", "Hobby albo projekt", "Seriale albo gry", "Scrollowanie"] } },
+
+    { id: 75, pack: "lifestyle", multi: true, added: "2026-11-16",
+      text: { en: "Dinner usually is", uk: "Вечеря зазвичай", pl: "Kolacja zwykle to" },
+      options: {
+        en: ["Cooked at home", "Quick and simple", "Delivery or eating out", "Whatever's in the fridge"],
+        uk: ["Готую вдома", "Щось швидке й просте", "Доставка чи ресторан", "Що є в холодильнику"],
+        pl: ["Gotuję w domu", "Coś szybkiego i prostego", "Dostawa albo na mieście", "Co jest w lodówce"] } },
+
+    { id: 76, pack: "lifestyle", added: "2026-11-16",
+      text: { en: "Your diet", uk: "Харчування", pl: "Dieta" },
+      options: {
+        en: ["I eat everything", "Little meat", "Vegetarian or vegan", "Strict diet for sport or health"],
+        uk: ["Їм усе", "Мало м'яса", "Вегетаріанство чи веганство", "Сувора дієта для спорту чи здоров'я"],
+        pl: ["Jem wszystko", "Mało mięsa", "Wegetariańska lub wegańska", "Ścisła dieta dla sportu lub zdrowia"] } },
+
+    { id: 77, pack: "lifestyle", added: "2026-11-16",
+      text: { en: "To fall asleep you need", uk: "Щоб заснути, тобі треба", pl: "Żeby zasnąć, potrzebujesz" },
+      options: {
+        en: ["Total silence and dark", "A little background noise", "Nothing, I sleep anywhere", "The TV or phone on"],
+        uk: ["Повна тиша й темрява", "Трохи фонового шуму", "Нічого, засинаю будь-де", "Увімкнений телевізор чи телефон"],
+        pl: ["Całkowitej ciszy i ciemności", "Trochę szumu w tle", "Niczego, zasnę wszędzie", "Włączonego telewizora lub telefonu"] } },
+
+    /* ---------- Habits: your habits vs. the ones you can live with ---------- */
+    { id: 65, pack: "habits", multi: true, scoring: "all", none: 3, added: "2026-11-16",
+      text: { en: "Be honest. Which of these is you?", uk: "Чесно: що з цього про тебе?", pl: "Szczerze: co z tego to ty?" },
+      accept: { en: "Partner habits you can live with", uk: "З якими звичками партнера зможеш жити", pl: "Z jakimi nawykami partnera wytrzymasz" },
+      options: {
+        en: ["I'm often late", "I snore", "I leave things lying around", "None of these"],
+        uk: ["Часто запізнююсь", "Хроплю", "Розкидаю речі", "Нічого з цього"],
+        pl: ["Często się spóźniam", "Chrapię", "Zostawiam rzeczy porozrzucane", "Żadne z tych"] } },
+
+    { id: 66, pack: "habits", multi: true, scoring: "all", none: 3, added: "2026-11-16",
+      text: { en: "And which of these?", uk: "А з цього?", pl: "A z tego?" },
+      accept: { en: "Partner habits you can live with", uk: "З якими звичками партнера зможеш жити", pl: "Z jakimi nawykami partnera wytrzymasz" },
+      options: {
+        en: ["I'm always on my phone", "I game for hours", "I leave dishes for later", "None of these"],
+        uk: ["Постійно в телефоні", "Граю годинами", "Лишаю посуд на потім", "Нічого з цього"],
+        pl: ["Ciągle siedzę w telefonie", "Gram godzinami", "Zostawiam naczynia na później", "Żadne z tych"] } },
+
     /* ---------- Dating ---------- */
     { id: 28, pack: "dating",
       text: { en: "Who should write first?", uk: "Хто має писати першим?", pl: "Kto powinien napisać pierwszy?" },
@@ -430,6 +499,13 @@ window.PAIRCODE_DATA = {
         uk: ["Дружити нормально", "Лише якщо почуттів не лишилось", "Мінімальний", "Жодного"],
         pl: ["Przyjaźń jest OK", "Tylko jeśli nie ma uczuć", "Minimalny", "Żaden"] } },
 
+    { id: 78, pack: "trust", added: "2026-11-16",
+      text: { en: "Your partner goes to a party without you. You", uk: "Партнер(-ка) йде на вечірку без тебе. Ти", pl: "Partner/ka idzie na imprezę bez ciebie. Ty" },
+      options: {
+        en: ["Enjoy my own evening", "Ask for a text now and then", "Want to know who'll be there", "Would rather they didn't go"],
+        uk: ["Проводжу вечір для себе", "Прошу іноді писати", "Хочу знати, хто там буде", "Волію, щоб не йшов(-ла)"],
+        pl: ["Spędzam wieczór dla siebie", "Proszę, żeby czasem napisał/a", "Chcę wiedzieć, kto tam będzie", "Wolę, żeby nie szedł/szła"] } },
+
     /* ---------- Beliefs and personal ---------- */
     { id: 25, pack: "beliefs", sensitive: true,
       text: { en: "Religion", uk: "Релігія", pl: "Religia" },
@@ -473,7 +549,50 @@ window.PAIRCODE_DATA = {
         uk: ["Повністю", "Здебільшого", "Ще переживаю"],
         pl: ["Całkowicie", "W większości", "Wciąż przeżywam"] } },
 
+    /* ---------- Double standards: the same rule for him and for her ---------- */
+    { id: 67, pack: "mirror", added: "2026-11-16",
+      text: { en: "“If he earns more, he decides on big purchases.”",
+              uk: "«Якщо він заробляє більше, великі покупки вирішує він.»",
+              pl: "„Jeśli on zarabia więcej, to on decyduje o dużych zakupach.”" },
+      options: "agree" },
+
+    { id: 68, pack: "mirror", mirrorOf: 67, added: "2026-11-16",
+      text: { en: "“If she earns more, she decides on big purchases.”",
+              uk: "«Якщо вона заробляє більше, великі покупки вирішує вона.»",
+              pl: "„Jeśli ona zarabia więcej, to ona decyduje o dużych zakupach.”" },
+      options: "agree" },
+
+    { id: 69, pack: "mirror", added: "2026-11-16",
+      text: { en: "“It's fine if he earns less than her.”",
+              uk: "«Нормально, якщо він заробляє менше за неї.»",
+              pl: "„To normalne, jeśli on zarabia mniej niż ona.”" },
+      options: "agree" },
+
+    { id: 70, pack: "mirror", mirrorOf: 69, added: "2026-11-16",
+      text: { en: "“It's fine if she earns less than him.”",
+              uk: "«Нормально, якщо вона заробляє менше за нього.»",
+              pl: "„To normalne, jeśli ona zarabia mniej niż on.”" },
+      options: "agree" },
+
+    { id: 71, pack: "mirror", added: "2026-11-16",
+      text: { en: "“It's fine for him to stay home with the kids while she works.”",
+              uk: "«Нормально, якщо він сидить удома з дітьми, а вона працює.»",
+              pl: "„To normalne, że on zostaje w domu z dziećmi, a ona pracuje.”" },
+      options: "agree" },
+
+    { id: 72, pack: "mirror", mirrorOf: 71, added: "2026-11-16",
+      text: { en: "“It's fine for her to stay home with the kids while he works.”",
+              uk: "«Нормально, якщо вона сидить удома з дітьми, а він працює.»",
+              pl: "„To normalne, że ona zostaje w domu z dziećmi, a on pracuje.”" },
+      options: "agree" },
+
     /* ---------- Hot takes ---------- */
+    { id: 79, pack: "hottakes", added: "2026-11-16",
+      text: { en: "“A prenup is normal, not a sign of distrust.”",
+              uk: "«Шлюбний договір це нормально, а не недовіра.»",
+              pl: "„Intercyza to normalna rzecz, a nie brak zaufania.”" },
+      options: "agree" },
+
     { id: 49, pack: "hottakes",
       text: { en: "“His salary is the family budget, hers is her own.”",
               uk: "«Зарплата чоловіка — сімейний бюджет, зарплата жінки — її зарплата.»",

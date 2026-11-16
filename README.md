@@ -10,8 +10,15 @@ Live: https://p4tient.github.io/paircode/
 
 - **Quick version** of 10 questions, or all of them in packs. Every question can be skipped.
 - **Several own answers** on questions where more than one can be true.
+- **Nuance flags** on any answer: "it depends", "not sure", "ask me about this". "Ask me" answers become first-date topics.
+- **Habits vs. what you can live with:** your own habits are checked against the other person's tolerance list.
+- **Double standards:** some rules are asked twice, for him and for her; different answers show up in comparisons.
+- **Answer what they answered:** opening someone's link without a code offers just their questions, then goes straight to the comparison.
 - **Compare one code**, question by question, or **paste a whole comment section** and rank every code in it.
-- **First-date topics:** each comparison picks the three biggest differences to talk about.
+- **First-date topics and strongest agreements:** each comparison lists the three things to talk about and the three things you agree on most.
+- **Code fingerprint:** three emoji derived from each code, easy to recognise in comments.
+- **Comparison history** with your own labels, stored only in your browser.
+- **Hot take of the week** on the home screen, from the newest statement in `questions.js`.
 - **Share a result** as text or as an image card. The card shows only the score, never the answers.
 - **Copy a hot take as a post**, linked to your own code.
 - **Suggest a question** from the footer (opens a pre-filled GitHub issue).
@@ -63,6 +70,10 @@ A question looks like this:
 - `quick: true` puts a question in the quick version.
 - `multi: true` lets people pick several of their own answers. Turning it on for an existing question doesn't break earlier codes.
 - A pack can carry a one-line `note` shown at its top.
+- `scoring: "all"` means every option the partner picked must be acceptable (used for habits); `none: 3` marks a "None of these" option.
+- `accept: { en, uk, pl }` replaces the "partner answers you'd accept" label.
+- `mirrorOf: 67` marks the "for her" version of question 67's "for him" rule.
+- `added: "2026-11-16"` shows a "New" badge for two weeks; the newest hot take also appears on the home screen.
 
 ## Scoring
 
@@ -75,11 +86,13 @@ v1: [1][N = highest answered id][bitmap of ids 1..N][1 byte per answered id][CRC
     answer byte: bits 7-6 own option, bits 5-2 accepted partner options, bits 1-0 importance
 v2: same, plus a bitmap over the answered ids marking answers with several own options;
     those take 2 bytes: (own options << 4 | importance), then accepted options
+v3: v2 plus a second bitmap over the answered ids marking answers with nuance flags,
+    and one flag byte per flagged answer at the end (bit 0 it depends, 1 not sure, 2 ask me)
 ```
 
-v2 is used only when someone actually picks several answers, so single-answer codes stay short and identical to v1.
+Each version is used only when needed: no multi-answers and no flags gives a v1 code, identical to codes made before these features existed.
 
-The bytes are written in base62 (letters and digits only), so a long-press selects the whole code. About 27 characters for the quick version, about 90 for every question, up to about 105 with many multi-answers. The CRC catches a mistyped character 255 times out of 256.
+The bytes are written in base62 (letters and digits only), so a long-press selects the whole code. About 27 characters for the quick version and about 115 for every question, a bit more with multi-answers and flags. The CRC catches a mistyped character 255 times out of 256.
 
 ## Settings
 

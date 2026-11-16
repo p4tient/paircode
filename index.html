@@ -204,6 +204,18 @@ p { margin: 0; }
 .res-img { width: 100%; max-width: 420px; border-radius: 14px; border: 1px solid var(--line); display: block; }
 .foot .actions { gap: 8px; }
 
+.badges { display: inline-flex; gap: 6px; flex: none; flex-wrap: wrap; justify-content: flex-end; }
+.badge.new { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.chips.flags .chip[aria-pressed="true"] { background: var(--warn-bg); border-color: var(--warn-line); color: var(--warn-ink); }
+.fp { font-size: 22px; letter-spacing: 3px; line-height: 1.2; }
+.fp.small { font-size: 16px; letter-spacing: 1px; margin-right: 4px; }
+.fp-pair { font-size: 20px; letter-spacing: 2px; margin: 0; }
+.rank.hist li { grid-template-columns: 56px 1fr auto; }
+.hist .rank-main { display: flex; align-items: center; gap: 6px; }
+.hist-label { flex: 1; min-width: 0; font: 600 15px/1.3 var(--body); color: var(--ink); background: transparent; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 8px; }
+.hist-btns { display: flex; gap: 6px; }
+.note.week { align-items: center; justify-content: space-between; flex-wrap: wrap; }
+
 .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--bar); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .dock-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
 .dock-count { font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -298,12 +310,12 @@ details.okset > summary::-webkit-details-marker { display: none; }
 /* ================= Settings ================= */
 var REPO_URL = 'https://github.com/p4tient/paircode'; // the footer links to questions.js here
 var SHARE_BASE = '';        // leave empty to use this page's own address in share links
-var FORMAT_VERSION = 2;     // newest code format this page reads (see Code format below); never bump for question edits
+var FORMAT_VERSION = 3;     // newest code format this page reads (see Code format below); never bump for question edits
 var WEIGHTS = [0, 1, 10, 100]; // doesn't matter, a little, a lot, dealbreaker
 var MIN_SHARED = 8;         // fewer shared answers than this: no percentage, breakdown only
 var LANGS = ['uk', 'pl', 'en'];
 var LANG_LABEL = { uk: 'UA', pl: 'PL', en: 'EN' };
-var STORE = { lang: 'paircode.lang', draft: 'paircode.draft', code: 'paircode.code', mode: 'paircode.mode' };
+var STORE = { lang: 'paircode.lang', draft: 'paircode.draft', code: 'paircode.code', mode: 'paircode.mode', hist: 'paircode.history' };
 
 /* ================= Interface text ================= */
 var UI = {
@@ -337,7 +349,7 @@ var UI = {
     copied: 'Copied', copyFail: "Couldn't copy. Select the text and copy it manually.",
     qrCaption: 'Show it to someone in person: their camera opens the comparison.',
     qrMissing: "The QR didn't load. The link works without it.",
-    postText: 'My Paircode: {code}\nCompare with yours: {link}',
+    postText: 'My Paircode {fp}: {code}\nCompare with yours: {link}',
     linkLabel: 'Link', postLabel: 'Post text',
     editAnswers: 'Edit answers', codeMeta: '{n} answers · {len} characters',
     noCodeYet: 'No code yet.', makeOne: 'Answer the questions',
@@ -358,6 +370,17 @@ var UI = {
     unknownNote: "{n} answers come from a newer question list and weren't counted. Reload the page.",
     insideTitle: "What's in this code", insideMeta: '{n} answers',
     yourDeal: 'Your dealbreaker', theirDeal: 'Their dealbreaker',
+    nuanceLabel: 'Add nuance (optional)',
+    flags: ['It depends', 'Not sure', 'Ask me about this'],
+    flagsShort: ['depends', 'not sure', 'ask me'],
+    acceptNone: 'nothing',
+    answerTheirs: 'Answer the same {n} questions',
+    answerTheirsNote: 'No code yet? Answer the same {n} questions and the comparison opens right away.',
+    modeTheirs: 'From the code · {n}', theirsTitle: 'Questions from their code',
+    agreeTitle: 'Where you agree most',
+    histTitle: 'Your comparisons', histHint: 'Stored only in this browser.', histName: 'Name', histOpen: 'Open', histClear: 'Clear history',
+    newBadge: 'New', weekTitle: 'Hot take of the week', weekBtn: 'Answer it',
+    secMirror: 'Double standards', mirrorDiff: 'Different for him and for her', fpLabel: 'Code fingerprint',
     cmpOne: 'One code', cmpMany: 'Many codes',
     manyLabel: 'Paste codes, links or a whole comment section', rankBtn: 'Rank them',
     manyFound: '{n} codes found', manyNone: 'No valid codes found in that text.', needMine: 'Add your own code first.',
@@ -406,7 +429,7 @@ var UI = {
     copied: 'Скопійовано', copyFail: 'Не вдалося скопіювати. Виділи текст і скопіюй вручну.',
     qrCaption: 'Покажи комусь наживо: камера відкриє порівняння.',
     qrMissing: 'QR не завантажився. Посилання працює і без нього.',
-    postText: 'Мій Paircode: {code}\nПорівняй зі своїм: {link}',
+    postText: 'Мій Paircode {fp}: {code}\nПорівняй зі своїм: {link}',
     linkLabel: 'Посилання', postLabel: 'Текст для поста',
     editAnswers: 'Змінити відповіді', codeMeta: 'Відповідей: {n} · символів: {len}',
     noCodeYet: 'Коду ще немає.', makeOne: 'Відповісти на питання',
@@ -427,6 +450,17 @@ var UI = {
     unknownNote: 'Відповідей з новішого списку питань: {n}. Їх не враховано. Онови сторінку.',
     insideTitle: 'Що в цьому коді', insideMeta: 'Відповідей: {n}',
     yourDeal: 'Принципово для тебе', theirDeal: 'Принципово для іншої людини',
+    nuanceLabel: "Нюанс (необов'язково)",
+    flags: ['Залежить від ситуації', 'Не впевнений(-а)', 'Спитай мене про це'],
+    flagsShort: ['залежить', 'не впевнений(-а)', 'спитай мене'],
+    acceptNone: 'нічого',
+    answerTheirs: 'Відповісти на ті самі питання ({n})',
+    answerTheirsNote: 'Ще немає свого коду? Відповідай на ті самі питання ({n}), і порівняння відкриється одразу.',
+    modeTheirs: 'З коду · {n}', theirsTitle: 'Питання з коду',
+    agreeTitle: 'У чому ви найбільше збігаєтесь',
+    histTitle: 'Твої порівняння', histHint: 'Зберігається лише в цьому браузері.', histName: "Ім'я", histOpen: 'Відкрити', histClear: 'Очистити історію',
+    newBadge: 'Нове', weekTitle: 'Гаряча тема тижня', weekBtn: 'Відповісти',
+    secMirror: 'Подвійні стандарти', mirrorDiff: 'Різне для нього й для неї', fpLabel: 'Відбиток коду',
     cmpOne: 'Один код', cmpMany: 'Багато кодів',
     manyLabel: 'Встав коди, посилання або цілий розділ коментарів', rankBtn: 'Порівняти всіх',
     manyFound: 'Знайдено кодів: {n}', manyNone: 'У цьому тексті немає дійсних кодів.', needMine: 'Спершу додай свій код.',
@@ -475,7 +509,7 @@ var UI = {
     copied: 'Skopiowano', copyFail: 'Nie udało się skopiować. Zaznacz tekst i skopiuj ręcznie.',
     qrCaption: 'Pokaż komuś na żywo: aparat otworzy porównanie.',
     qrMissing: 'Kod QR się nie wczytał. Link działa bez niego.',
-    postText: 'Mój Paircode: {code}\nPorównaj ze swoim: {link}',
+    postText: 'Mój Paircode {fp}: {code}\nPorównaj ze swoim: {link}',
     linkLabel: 'Link', postLabel: 'Tekst posta',
     editAnswers: 'Edytuj odpowiedzi', codeMeta: 'Odpowiedzi: {n} · znaków: {len}',
     noCodeYet: 'Nie masz jeszcze kodu.', makeOne: 'Odpowiedz na pytania',
@@ -496,6 +530,17 @@ var UI = {
     unknownNote: 'Odpowiedzi z nowszej listy pytań: {n}. Nie zostały uwzględnione. Odśwież stronę.',
     insideTitle: 'Co jest w tym kodzie', insideMeta: 'Odpowiedzi: {n}',
     yourDeal: 'Twój warunek konieczny', theirDeal: 'Warunek drugiej osoby',
+    nuanceLabel: 'Niuans (opcjonalnie)',
+    flags: ['To zależy', 'Nie jestem pewien/pewna', 'Zapytaj mnie o to'],
+    flagsShort: ['zależy', 'niepewne', 'zapytaj mnie'],
+    acceptNone: 'nic',
+    answerTheirs: 'Odpowiedz na te same pytania ({n})',
+    answerTheirsNote: 'Nie masz jeszcze kodu? Odpowiedz na te same pytania ({n}), a porównanie otworzy się od razu.',
+    modeTheirs: 'Z kodu · {n}', theirsTitle: 'Pytania z kodu',
+    agreeTitle: 'W czym zgadzacie się najbardziej',
+    histTitle: 'Twoje porównania', histHint: 'Zapisane tylko w tej przeglądarce.', histName: 'Imię', histOpen: 'Otwórz', histClear: 'Wyczyść historię',
+    newBadge: 'Nowe', weekTitle: 'Gorący temat tygodnia', weekBtn: 'Odpowiedz',
+    secMirror: 'Podwójne standardy', mirrorDiff: 'Inaczej dla niego i dla niej', fpLabel: 'Odcisk kodu',
     cmpOne: 'Jeden kod', cmpMany: 'Wiele kodów',
     manyLabel: 'Wklej kody, linki albo całą sekcję komentarzy', rankBtn: 'Porównaj wszystkich',
     manyFound: 'Znalezione kody: {n}', manyNone: 'W tym tekście nie ma prawidłowych kodów.', needMine: 'Najpierw dodaj swój kod.',
@@ -546,6 +591,25 @@ function oText(q, i) { var o = optionsFor(q, lang); return o[i] !== undefined ? 
 function maskText(q, m) { return optionsFor(q, lang).filter(function (o, i) { return m & (1 << i); }).join(', ') || '?'; }
 function bitCount(x) { var c = 0; while (x) { c += x & 1; x >>= 1; } return c; }
 function lowBit(x) { for (var i = 0; i < 4; i++) if (x & (1 << i)) return i; return 0; }
+function flagText(f) { var s = t('flagsShort'); return [0, 1, 2].filter(function (i) { return f & (1 << i); }).map(function (i) { return s[i]; }).join(', '); }
+function withFlags(text, f) { return f ? text + ' (' + flagText(f) + ')' : text; }
+/* "One acceptable answer is enough", or for scoring "all" (habits): every picked option must be acceptable. */
+function accepts(q, acc, m) {
+  if (q.scoring === 'all') { var none = q.none !== undefined ? (1 << q.none) : 0; return ((m & ~none) & ~acc) === 0; }
+  return !!(acc & m);
+}
+function isNew(q) {
+  if (!q.added) return false;
+  var d = Date.parse(q.added + 'T00:00:00Z');
+  return !isNaN(d) && Date.now() >= d && Date.now() - d < 14 * 864e5;
+}
+/* Three emoji derived from a code, so people can recognise it at a glance and see that it was copied whole. */
+var FP = ['🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦉','🦋','🐌','🐞','🐢','🐙','🦀','🐬','🐳','🦒','🦓','🐘','🦔','🦦','🦥','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍒','🍑','🥝','🍍','🥥','🥑','🥕','🌽','🍄','🌵','🌲','🌻','🌙','⭐','🔥','⛄','🌈','🎈','⚓','🚲','🎁','🎲','🎸','📚','🔑','💎','🧩'];
+function fingerprint(code) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < code.length; i++) { h ^= code.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return FP[h & 63] + FP[(h >>> 6) & 63] + FP[(h >>> 12) & 63];
+}
 
 function loadData() {
   if (!DATA || !Array.isArray(DATA.questions)) { loadFailed = true; return; }
@@ -586,6 +650,13 @@ function loadData() {
       q._badShowIf = true;
     }
   });
+  QBY.forEach(function (q) {
+    var n = nOpts(q);
+    if (q.none !== undefined && (!Number.isInteger(q.none) || q.none < 0 || q.none >= n)) { errors.push('Question id ' + q.id + ': "none" must be the index of one of its options.'); delete q.none; }
+    if (q.scoring !== undefined && q.scoring !== 'all') errors.push('Question id ' + q.id + ': scoring can only be "all".');
+    if (q.mirrorOf !== undefined && !QBY.get(q.mirrorOf)) { errors.push('Question id ' + q.id + ': mirrorOf points to a missing question.'); delete q.mirrorOf; }
+    if (q.added !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(q.added)) errors.push('Question id ' + q.id + ': added must look like 2026-11-16.');
+  });
   ACTIVE = DATA.questions.filter(function (q) { return q && QBY.get(q.id) === q && !q.retired; });
 }
 
@@ -600,7 +671,7 @@ function loadDraft() {
       if (!q || !r) return;
       var full = (1 << nOpts(q)) - 1;
       var m = r.m !== undefined ? r.m | 0 : (r.a !== undefined ? 1 << (r.a | 0) : 0); // older drafts stored a single option as "a"
-      if (m && !(m & ~full)) answers.set(e[0], { m: m, acc: r.acc | 0, imp: r.imp | 0, t: !!r.t });
+      if (m && !(m & ~full)) answers.set(e[0], { m: m, acc: r.acc | 0, imp: r.imp | 0, f: (r.f | 0) & 7, t: !!r.t });
     });
   } catch (e) { answers = new Map(); }
 }
@@ -618,17 +689,19 @@ function publicAnswers() {
     var mask = (1 << nOpts(q)) - 1;
     if (!r || !isShown(q, answers) || !r.m || (r.m & ~mask)) return;
     var own = q.multi ? r.m : (1 << lowBit(r.m));
-    m.set(q.id, { m: own, acc: (r.acc & mask) || own, imp: r.imp & 3 });
+    m.set(q.id, { m: own, acc: (r.acc & mask) || own, imp: r.imp & 3, f: (r.f | 0) & 7 });
   });
   return m;
 }
-
 /* ================= Code format =================
    v1: [1][N = highest answered id][bitmap of ids 1..N][one byte per answered id][CRC-8]
        answer byte: bits 7-6 my option, bits 5-2 accepted partner options, bits 1-0 importance
    v2, used only when someone picked several own answers somewhere:
        [2][N][bitmap of ids 1..N][bitmap over the answered ids, 1 = several own answers][answers][CRC-8]
        one own answer: one byte as in v1; several: two bytes, (my options << 4 | importance), then accepted options
+   v3, used only when someone added nuance flags: v2 plus a second bitmap over the answered ids
+       (1 = has flags) right after the multi bitmap, and one flag byte per flagged answer at the end
+       (bit 0 it depends, bit 1 not sure, bit 2 ask me)
    text: base62 (letters and digits only, so a long-press selects the whole code) */
 var B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 function b62enc(bytes) {
@@ -662,21 +735,25 @@ function encode(map) {
   var ids = Array.from(map.keys()).sort(function (a, b) { return a - b; });
   var N = ids.length ? ids[ids.length - 1] : 0;
   var multi = ids.map(function (id) { return bitCount(map.get(id).m & 15) > 1; });
-  var v2 = multi.some(Boolean);
-  var bytes = [v2 ? 2 : 1, N];
+  var flags = ids.map(function (id) { return (map.get(id).f | 0) & 7; });
+  var ver = flags.some(Boolean) ? 3 : multi.some(Boolean) ? 2 : 1;
+  var bytes = [ver, N];
   var bm = new Array(Math.ceil(N / 8)).fill(0);
   ids.forEach(function (id) { bm[(id - 1) >> 3] |= 1 << ((id - 1) & 7); });
   bytes = bytes.concat(bm);
-  if (v2) {
-    var mb = new Array(Math.ceil(ids.length / 8)).fill(0);
-    multi.forEach(function (on, k) { if (on) mb[k >> 3] |= 1 << (k & 7); });
-    bytes = bytes.concat(mb);
+  function bits(arr) {
+    var b = new Array(Math.ceil(ids.length / 8)).fill(0);
+    arr.forEach(function (on, k) { if (on) b[k >> 3] |= 1 << (k & 7); });
+    return b;
   }
+  if (ver >= 2) bytes = bytes.concat(bits(multi));
+  if (ver >= 3) bytes = bytes.concat(bits(flags.map(Boolean)));
   ids.forEach(function (id, k) {
     var r = map.get(id);
     if (multi[k]) bytes.push(((r.m & 15) << 4) | (r.imp & 3), r.acc & 15);
     else bytes.push(((lowBit(r.m) & 3) << 6) | ((r.acc & 15) << 2) | (r.imp & 3));
   });
+  if (ver >= 3) flags.forEach(function (f) { if (f) bytes.push(f); });
   bytes.push(crc8(bytes));
   return b62enc(bytes);
 }
@@ -688,29 +765,37 @@ function decode(str) {
   if (crc8(bytes) !== crc) return { err: 'invalid' };
   var ver = bytes[0];
   if (ver > FORMAT_VERSION) return { err: 'newer' };
-  if (ver !== 1 && ver !== 2) return { err: 'invalid' };
+  if (ver < 1) return { err: 'invalid' };
   var N = bytes[1], p = 2 + Math.ceil(N / 8);
   if (bytes.length < p) return { err: 'invalid' };
   var ids = [];
   for (var id = 1; id <= N; id++) if (bytes[2 + ((id - 1) >> 3)] & (1 << ((id - 1) & 7))) ids.push(id);
   if (!ids.length) return { err: 'invalid' };
-  var multi = ids.map(function () { return false; });
-  if (ver === 2) {
-    var mbLen = Math.ceil(ids.length / 8);
-    if (bytes.length < p + mbLen) return { err: 'invalid' };
-    multi = ids.map(function (x, k) { return !!(bytes[p + (k >> 3)] & (1 << (k & 7))); });
-    p += mbLen;
+  var bl = Math.ceil(ids.length / 8);
+  function readBits() {
+    if (bytes.length < p + bl) return null;
+    var out = ids.map(function (x, k) { return !!(bytes[p + (k >> 3)] & (1 << (k & 7))); });
+    p += bl;
+    return out;
   }
+  var multi = ids.map(function () { return false; }), flagged = multi.slice();
+  if (ver >= 2) { multi = readBits(); if (!multi) return { err: 'invalid' }; }
+  if (ver >= 3) { flagged = readBits(); if (!flagged) return { err: 'invalid' }; }
   var map = new Map();
   for (var k = 0; k < ids.length; k++) {
     if (p >= bytes.length) return { err: 'invalid' };
     var b = bytes[p++];
     if (multi[k]) {
       if (p >= bytes.length || !(b >> 4)) return { err: 'invalid' };
-      map.set(ids[k], { m: b >> 4, acc: bytes[p++] & 15, imp: b & 3 });
+      map.set(ids[k], { m: b >> 4, acc: bytes[p++] & 15, imp: b & 3, f: 0 });
     } else {
-      map.set(ids[k], { m: 1 << (b >> 6), acc: (b >> 2) & 15, imp: b & 3 });
+      map.set(ids[k], { m: 1 << (b >> 6), acc: (b >> 2) & 15, imp: b & 3, f: 0 });
     }
+  }
+  for (var j = 0; j < ids.length; j++) {
+    if (!flagged[j]) continue;
+    if (p >= bytes.length) return { err: 'invalid' };
+    map.get(ids[j]).f = bytes[p++] & 7;
   }
   if (p !== bytes.length) return { err: 'invalid' };
   return { map: map };
@@ -745,8 +830,8 @@ function compareMaps(A, B) {
     var full = (1 << n) - 1;
     if ((a && (!a.m || (a.m & ~full))) || (b && (!b.m || (b.m & ~full)))) { unknown++; return; }
     if (a && b) {
-      var aAccepts = !!(a.acc & b.m);   // one acceptable answer is enough
-      var bAccepts = !!(b.acc & a.m);
+      var aAccepts = accepts(q, a.acc, b.m);
+      var bAccepts = accepts(q, b.acc, a.m);
       var wa = WEIGHTS[a.imp], wb = WEIGHTS[b.imp];
       pA += wa; if (aAccepts) eA += wa;
       pB += wb; if (bAccepts) eB += wb;
@@ -757,7 +842,7 @@ function compareMaps(A, B) {
     else if (b && b.imp === 3) skippedByA.push(q);
   });
   var sA = pA ? eA / pA : 1, sB = pB ? eB / pB : 1;
-  return { items: items, n: items.length, score: Math.sqrt(sA * sB), sA: sA, sB: sB, skippedByA: skippedByA, skippedByB: skippedByB, unknown: unknown };
+  return { A: A, B: B, items: items, n: items.length, score: Math.sqrt(sA * sB), sA: sA, sB: sB, skippedByA: skippedByA, skippedByB: skippedByB, unknown: unknown };
 }
 function displayOrder() { var m = new Map(); ACTIVE.forEach(function (q, i) { m.set(q.id, i); }); return m; }
 
@@ -766,8 +851,28 @@ var view = 'home';
 var openPacks = new Set(['core']);
 var quizMode = 'quick';
 function quickCount() { return ACTIVE.filter(function (q) { return q.quick && !q.showIf; }).length; }
-var cmp = { view: 'one', theirs: '', mine: '', mineCode: '', mode: '', error: '', result: null, single: null, manyText: '', many: null };
+var cmp = { view: 'one', theirs: '', mine: '', mineCode: '', theirCode: '', theirLabel: '', target: null, mode: '', error: '', result: null, single: null, manyText: '', many: null };
 var installEvt = null;
+
+/* ---------- Comparison history (this browser only) ---------- */
+var hist = [];
+function histLoad() {
+  try {
+    var a = JSON.parse(storeGet(STORE.hist) || '[]');
+    hist = Array.isArray(a) ? a.filter(function (x) { return x && typeof x.c === 'string'; }) : [];
+  } catch (e) { hist = []; }
+}
+function histSave() { storeSet(STORE.hist, JSON.stringify(hist.slice(0, 50))); }
+function histAdd(code, label, res) {
+  var old = hist.filter(function (x) { return x.c === code; })[0];
+  hist = hist.filter(function (x) { return x.c !== code; });
+  hist.unshift({ c: code, l: (old && old.l) || label || '', p: res.n >= MIN_SHARED ? Math.round(res.score * 100) : -1, n: res.n, d: Date.now() });
+  hist = hist.slice(0, 50);
+  histSave();
+}
+function targetIds(map) {
+  return Array.from(map.keys()).filter(function (id) { var q = QBY.get(id); return q && ACTIVE.indexOf(q) >= 0; });
+}
 
 function baseLink() { return SHARE_BASE || location.href.split('#')[0]; }
 function shareLink(code) { return baseLink() + '#' + code; }
@@ -821,6 +926,13 @@ function renderChrome() {
 function issueUrl() {
   return REPO_URL.replace(/\/$/, '') + '/issues/new?title=' + encodeURIComponent(t('issueTitle')) + '&body=' + encodeURIComponent(t('issueBody'));
 }
+function weekHTML() {
+  var wk = ACTIVE.filter(function (q) { return q.pack === 'hottakes' && isNew(q); })
+    .sort(function (a, b) { return a.added < b.added ? 1 : -1; })[0];
+  if (!wk) return '';
+  return '<div class="note calm week"><div><b>' + esc(t('weekTitle')) + '</b>' + esc(qText(wk)) + '</div>' +
+    '<button type="button" class="btn small ghost" data-act="goto-q" data-id="' + wk.id + '">' + esc(t('weekBtn')) + '</button></div>';
+}
 function renderHome() {
   var n = publicAnswers().size;
   var sample = ['ok','ok','half','ok','ok','bad','ok','ok','half','ok','ok','ok','half','bad'];
@@ -835,6 +947,7 @@ function renderHome() {
         '<button type="button" class="btn ghost" data-go="compare">' + esc(t('compareCodes')) + '</button>' +
       '</div>' +
     '</div>' +
+    weekHTML() +
     '<ol class="steps">' +
       ['step1', 'step2', 'step3'].map(function (k, i) { return '<li><span class="num">' + (i + 1) + '</span><span>' + esc(t(k)) + '</span></li>'; }).join('') +
     '</ol>' +
@@ -859,22 +972,29 @@ function cardHTML(q) {
   var r = answers.get(q.id);
   var opts = optionsFor(q, lang);
   var hot = q.options === 'agree' ? '<button type="button" class="linkbtn" data-act="hotpost">' + esc(t('copyAsPost')) + '</button>' : '';
+  var badges = (isNew(q) ? '<span class="badge new">' + esc(t('newBadge')) + '</span>' : '') +
+               (q.sensitive ? '<span class="badge">⚠ ' + esc(t('sensitive')) + '</span>' : '');
   var h = '<article class="q' + (r ? ' is-on' : '') + '" data-id="' + q.id + '">';
-  h += '<div class="q-head"><h3 class="q-text">' + esc(qText(q)) + '</h3>' +
-       (q.sensitive ? '<span class="badge">⚠ ' + esc(t('sensitive')) + '</span>' : '') + '</div>';
+  h += '<div class="q-head"><h3 class="q-text">' + esc(qText(q)) + '</h3>' + (badges ? '<span class="badges">' + badges + '</span>' : '') + '</div>';
   if (q.sensitive && !r) h += '<p class="q-note">' + esc(t('sensitiveNote')) + '</p>';
   if (q.multi) h += '<p class="q-note">' + esc(t('pickAll')) + '</p>';
   h += '<div class="chips" role="group" aria-label="' + esc(t('you')) + '">' + opts.map(function (o, i) {
     return '<button type="button" class="chip" data-act="ans" data-i="' + i + '" aria-pressed="' + (!!r && !!(r.m & (1 << i))) + '">' + esc(o) + '</button>';
   }).join('') + '</div>';
   if (r) {
-    h += '<div class="sub"><div class="sub-label">' + esc(t('acceptLabel')) + '</div>' +
+    var acceptLabel = q.accept ? (q.accept[lang] || q.accept.en) : t('acceptLabel');
+    h += '<div class="sub"><div class="sub-label">' + esc(acceptLabel) + '</div>' +
       '<div class="chips sm" role="group">' + opts.map(function (o, i) {
+        if (q.none === i) return '';
         return '<button type="button" class="chip" data-act="acc" data-i="' + i + '" aria-pressed="' + !!(r.acc & (1 << i)) + '">' + esc(o) + '</button>';
       }).join('') + '</div>' +
       '<div class="sub-label">' + esc(t('impLabel')) + '</div>' +
       '<div class="seg" role="group">' + t('imp').map(function (lab, k) {
         return '<button type="button"' + (k === 3 ? ' class="deal"' : '') + ' data-act="imp" data-i="' + k + '" aria-pressed="' + (r.imp === k) + '">' + esc(lab) + '</button>';
+      }).join('') + '</div>' +
+      '<div class="sub-label">' + esc(t('nuanceLabel')) + '</div>' +
+      '<div class="chips sm flags" role="group">' + t('flags').map(function (lab, k) {
+        return '<button type="button" class="chip" data-act="flag" data-i="' + k + '" aria-pressed="' + !!((r.f | 0) & (1 << k)) + '">' + esc(lab) + '</button>';
       }).join('') + '</div></div>' +
       '<div class="q-foot">' + (hot || '<span></span>') + '<button type="button" class="linkbtn" data-act="skip">' + esc(t('skip')) + '</button></div>';
   } else {
@@ -886,15 +1006,25 @@ function renderQuiz() {
   var h = '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('publicWarn')) + '</div></div>' +
           '<p class="muted small">' + esc(t('quizHint')) + '</p>';
   var nq = quickCount();
-  if (!nq) quizMode = 'all';
-  if (nq) h += '<div class="modes" role="group">' +
-    '<button type="button" data-act="mode" data-mode="quick" aria-pressed="' + (quizMode === 'quick') + '">' + esc(t('modeQuick', { n: nq })) + '</button>' +
-    '<button type="button" data-act="mode" data-mode="all" aria-pressed="' + (quizMode === 'all') + '">' + esc(t('modeAll', { n: ACTIVE.length })) + '</button></div>';
+  var tq = cmp.target ? ACTIVE.filter(function (q) { return cmp.target.ids.indexOf(q.id) >= 0; }) : [];
+  if (quizMode === 'target' && !tq.length) quizMode = 'quick';
+  if (quizMode === 'quick' && !nq) quizMode = 'all';
+  var modes = [];
+  if (tq.length) modes.push(['target', t('modeTheirs', { n: tq.length })]);
+  if (nq) modes.push(['quick', t('modeQuick', { n: nq })]);
+  modes.push(['all', t('modeAll', { n: ACTIVE.length })]);
+  if (modes.length > 1) h += '<div class="modes" role="group">' + modes.map(function (m) {
+    return '<button type="button" data-act="mode" data-mode="' + m[0] + '" aria-pressed="' + (quizMode === m[0]) + '">' + esc(m[1]) + '</button>';
+  }).join('') + '</div>';
   function doneOf(qs) { return qs.filter(function (q) { return answers.has(q.id); }).length; }
-  if (quizMode === 'quick') {
-    var quick = ACTIVE.filter(function (q) { return q.quick && isShown(q, answers); });
-    h += '<div class="pack"><div class="pack-head"><span class="pack-title">' + esc(t('quickTitle')) + '</span><span class="pack-count">' + doneOf(quick) + '/' + quick.length + '</span></div>' +
-         '<div class="pack-body">' + quick.map(cardHTML).join('') + '</div></div>';
+  function flat(title, qs) {
+    return '<div class="pack"><div class="pack-head"><span class="pack-title">' + esc(title) + '</span><span class="pack-count">' + doneOf(qs) + '/' + qs.length + '</span></div>' +
+      '<div class="pack-body">' + qs.map(cardHTML).join('') + '</div></div>';
+  }
+  if (quizMode === 'target') {
+    h += flat(t('theirsTitle'), tq.filter(function (q) { return isShown(q, answers); }));
+  } else if (quizMode === 'quick') {
+    h += flat(t('quickTitle'), ACTIVE.filter(function (q) { return q.quick && isShown(q, answers); }));
   } else {
     PACKS.forEach(function (p) {
       var qs = ACTIVE.filter(function (q) { return q.pack === p.key && isShown(q, answers); });
@@ -918,17 +1048,25 @@ function onQuizAction(btn) {
   var card = btn.closest('.q'); if (!card) return;
   var id = +card.dataset.id, q = QBY.get(id), i = +btn.dataset.i, act = btn.dataset.act;
   var r = answers.get(id);
+  var noneBit = q.none !== undefined ? (1 << q.none) : 0;
+  var keepNone = q.scoring === 'all' ? noneBit : 0;   // "None of these" always counts as acceptable
   if (act === 'ans') {
-    if (!r) answers.set(id, { m: 1 << i, acc: 1 << i, imp: 1, t: false });
+    var bit = 1 << i;
+    if (!r) answers.set(id, { m: bit, acc: bit | keepNone, imp: 1, f: 0, t: false });
     else {
-      var nm = q.multi ? (r.m ^ (1 << i)) : (1 << i);   // multi: toggle; the last one stays (use Skip to clear)
-      if (nm) { r.m = nm; if (!r.t) r.acc = nm; }
+      var nm;
+      if (!q.multi) nm = bit;
+      else if (noneBit && bit === noneBit) nm = noneBit;      // "None of these" clears the rest
+      else nm = (r.m ^ bit) & ~noneBit;                     // multi: toggle; the last one stays (use Skip to clear)
+      if (nm) { r.m = nm; if (!r.t) r.acc = nm | keepNone; }
     }
   } else if (act === 'acc' && r) {
-    var next = r.acc ^ (1 << i);
+    var next = (r.acc ^ (1 << i)) | keepNone;
     if (next & ((1 << nOpts(q)) - 1)) { r.acc = next; r.t = true; }
   } else if (act === 'imp' && r) {
     r.imp = i;
+  } else if (act === 'flag' && r) {
+    r.f = ((r.f | 0) ^ (1 << i)) & 7;
   } else if (act === 'skip') {
     answers.delete(id);
   }
@@ -940,29 +1078,30 @@ function onQuizAction(btn) {
               $('#v-quiz .q[data-id="' + id + '"] [data-act="ans"]');
   if (again) again.focus({ preventScroll: true });
 }
-
 /* ---------- Review ---------- */
-function answerRowHTML(q, r, removable) {
-  var acc = optionsFor(q, lang).filter(function (o, i) { return r.acc & (1 << i); }).join(', ');
+function answerRowHTML(q, r, removable, extra) {
+  var acc = optionsFor(q, lang).filter(function (o, i) { return (r.acc & (1 << i)) && q.none !== i; }).join(', ');
   return '<div class="rv"><div class="rv-main">' +
     '<div class="rv-q">' + esc(qText(q)) + (q.sensitive ? ' ⚠' : '') + '</div>' +
-    '<div class="rv-a">' + esc(maskText(q, r.m)) + '</div>' +
-    '<div class="rv-meta">' + esc(t('accepts')) + ': ' + esc(acc) + ' · ' + esc(t('matters')) + ': ' + esc(t('imp')[r.imp]) + '</div>' +
+    '<div class="rv-a">' + esc(withFlags(maskText(q, r.m), r.f)) + '</div>' +
+    '<div class="rv-meta">' + esc(t('accepts')) + ': ' + esc(acc || t('acceptNone')) + ' · ' + esc(t('matters')) + ': ' + esc(t('imp')[r.imp]) + '</div>' +
+    (extra || '') +
     '</div>' + (removable ? '<button type="button" class="btn small ghost" data-act="rm" data-id="' + q.id + '">' + esc(t('remove')) + '</button>' : '') + '</div>';
 }
 function renderReview() {
   var pub = publicAnswers();
   var rows = ACTIVE.filter(function (q) { return pub.has(q.id); }).map(function (q) { return answerRowHTML(q, pub.get(q.id), true); }).join('');
-  $('#v-review').innerHTML =
-    '<h2>' + esc(t('reviewTitle')) + '</h2>' +
-    '<p class="muted">' + esc(t('reviewSub')) + '</p>' +
-    (rows ? '<div class="list">' + rows + '</div>' : '<p class="muted">' + esc(t('noAnswers')) + '</p>') +
-    '<div class="actions">' +
+  var actions = '<div class="actions">' +
       '<button type="button" class="btn primary" data-act="create"' + (pub.size ? '' : ' disabled') + '>' + esc(t('createCode')) + '</button>' +
       '<button type="button" class="btn ghost" data-go="quiz">' + esc(t('backToQ')) + '</button>' +
     '</div>';
+  $('#v-review').innerHTML =
+    '<h2>' + esc(t('reviewTitle')) + '</h2>' +
+    '<p class="muted">' + esc(t('reviewSub')) + '</p>' +
+    actions +
+    (rows ? '<div class="list">' + rows + '</div>' : '<p class="muted">' + esc(t('noAnswers')) + '</p>') +
+    (pub.size > 5 ? actions : '');
 }
-
 /* ---------- My code ---------- */
 function renderCode() {
   var code = myCode();
@@ -976,11 +1115,13 @@ function renderCode() {
   var order = displayOrder();
   var cells = Array.from(parsed.map.entries()).sort(function (x, y) { return (order.has(x[0]) ? order.get(x[0]) : 999) - (order.has(y[0]) ? order.get(y[0]) : 999); })
     .map(function (e) { return '<span class="cell imp' + e[1].imp + '"></span>'; }).join('');
-  var post = t('postText', { code: code, link: link });
+  var fp = fingerprint(code);
+  var post = t('postText', { code: code, link: link, fp: fp });
   $('#v-code').innerHTML =
     '<h2>' + esc(t('codeTitle')) + '</h2>' +
     '<div class="ticket">' +
       '<div class="ticket-top">' +
+        '<div class="fp" title="' + esc(t('fpLabel')) + '">' + fp + '</div>' +
         '<div class="code" id="codeText">' + esc(code) + '</div>' +
         '<div class="muted small">' + esc(t('codeMeta', { n: parsed.map.size, len: code.length })) + '</div>' +
         '<div class="strip" aria-hidden="true">' + cells + '</div>' +
@@ -1039,13 +1180,18 @@ function renderCompare() {
       : '<button type="button" class="btn primary" data-act="cmp">' + esc(t('cmpBtn')) + '</button>' +
         '<button type="button" class="btn ghost" data-act="inside">' + esc(t('viewBtn')) + '</button>') +
     '</div>';
-  if (!myCode()) h += '<p class="small muted">' + esc(t('noCodeYet')) + ' <button type="button" class="linkbtn" data-go="quiz">' + esc(t('makeOne')) + '</button></p>';
+  var tp = (!many && !myCode() && cmp.theirs.trim()) ? parseCode(cmp.theirs) : null;
+  var tn = tp && tp.map ? targetIds(tp.map).length : 0;
+  if (tn) h += '<div class="note calm"><div>' + esc(t('answerTheirsNote', { n: tn })) + '</div></div>' +
+    '<div class="actions"><button type="button" class="btn primary" data-act="answer-theirs">' + esc(t('answerTheirs', { n: tn })) + '</button></div>';
+  else if (!myCode()) h += '<p class="small muted">' + esc(t('noCodeYet')) + ' <button type="button" class="linkbtn" data-go="quiz">' + esc(t('makeOne')) + '</button></p>';
   if (cmp.error) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(cmp.error) + '</div></div>';
   if (many) { if (cmp.many) h += manyHTML(cmp.many); }
   else {
     if (cmp.mode === 'cmp' && cmp.result) h += resultHTML(cmp.result);
     if (cmp.mode === 'inside' && cmp.single) h += insideHTML(cmp.single);
   }
+  h += historyHTML();
   $('#v-compare').innerHTML = h;
 }
 /* Finds every valid code in pasted text (a Threads comment section, a list of links...).
@@ -1083,16 +1229,28 @@ function runMany() {
   function key(e) { return e.res.n >= MIN_SHARED ? e.res.score : -1; }
   cmp.many = found.map(function (f) { return { code: f.code, label: f.label, res: compareMaps(A.map, f.map) }; })
     .sort(function (x, y) { return key(y) - key(x) || y.res.n - x.res.n; });
+  cmp.many.slice().reverse().forEach(function (e) { histAdd(e.code, e.label, e.res); });
 }
 function manyHTML(list) {
   return '<div class="result"><p class="small muted">' + esc(t('manyFound', { n: list.length })) + '</p><ol class="rank">' + list.map(function (e) {
     var deal = e.res.items.filter(function (it) { return it.status === 'deal'; }).length;
     var pct = e.res.n >= MIN_SHARED ? Math.round(e.res.score * 100) + '%' : '—';
     var meta = t('sharedShort', { n: e.res.n }) + (deal ? ' · ' + t('dealShort', { n: deal }) : '');
-    return '<li><span class="rank-pct">' + esc(pct) + '</span><div class="rank-main"><div class="rank-label">' + esc(e.label || e.code.slice(0, 10) + '…') + '</div>' +
+    return '<li><span class="rank-pct">' + esc(pct) + '</span><div class="rank-main"><div class="rank-label"><span class="fp small" aria-hidden="true">' + fingerprint(e.code) + '</span>' + esc(e.label || e.code.slice(0, 10) + '…') + '</div>' +
       '<div class="small muted">' + esc(meta) + '</div></div>' +
       '<button type="button" class="btn small ghost" data-act="many-open" data-code="' + esc(e.code) + '">' + esc(t('details')) + '</button></li>';
   }).join('') + '</ol></div>';
+}
+function historyHTML() {
+  if (!hist.length) return '';
+  return '<div class="result"><div class="section-title">' + esc(t('histTitle')) + '</div><p class="small muted">' + esc(t('histHint')) + '</p>' +
+    '<ol class="rank hist">' + hist.map(function (x) {
+      return '<li><span class="rank-pct">' + (x.p >= 0 ? x.p + '%' : '—') + '</span>' +
+        '<div class="rank-main"><span class="fp small" aria-hidden="true">' + fingerprint(x.c) + '</span>' +
+        '<input class="hist-label" data-code="' + esc(x.c) + '" value="' + esc(x.l) + '" placeholder="' + esc(t('histName')) + '" aria-label="' + esc(t('histName')) + '"></div>' +
+        '<div class="hist-btns"><button type="button" class="btn small ghost" data-act="hist-open" data-code="' + esc(x.c) + '">' + esc(t('histOpen')) + '</button>' +
+        '<button type="button" class="btn small ghost" data-act="hist-del" data-code="' + esc(x.c) + '" aria-label="' + esc(t('remove')) + '">×</button></div></li>';
+    }).join('') + '</ol><div class="actions"><button type="button" class="linkbtn" data-act="hist-clear">' + esc(t('histClear')) + '</button></div></div>';
 }
 function errText(e) { return e === 'newer' ? t('errNewer') : e === 'empty' ? t('errTheirs') : t('errInvalid'); }
 function runCompare() {
@@ -1102,22 +1260,27 @@ function runCompare() {
   if (B.err) { cmp.error = t('theirLabel') + ': ' + errText(B.err); return; }
   if (A.err) { cmp.error = t('mineLabel') + ': ' + errText(A.err); return; }
   if (A.code === B.code) { cmp.error = t('sameCode'); return; }
-  cmp.mineCode = A.code;
+  cmp.mineCode = A.code; cmp.theirCode = B.code;
   cmp.result = compareMaps(A.map, B.map);
+  histAdd(B.code, cmp.theirLabel, cmp.result); cmp.theirLabel = '';
 }
 function runInside() {
   cmp.error = ''; cmp.result = null; cmp.single = null; cmp.mode = 'inside';
   var B = parseCode(cmp.theirs);
   if (B.err) { cmp.error = errText(B.err); return; }
+  cmp.theirCode = B.code;
   cmp.single = B.map;
 }
 function resultHTML(res) {
   var c = { ok: 0, half: 0, bad: 0, deal: 0 };
   res.items.forEach(function (it) { c[it.status]++; });
   var order = displayOrder();
-  var stripCells = res.items.slice().sort(function (x, y) { return order.get(x.q.id) - order.get(y.q.id); })
+  function ord(q) { return order.has(q.id) ? order.get(q.id) : 999; }
+  function w(it) { return WEIGHTS[it.a.imp] + WEIGHTS[it.b.imp]; }
+  var stripCells = res.items.slice().sort(function (x, y) { return ord(x.q) - ord(y.q); })
     .map(function (it) { return '<span class="cell s-' + it.status + '"></span>'; }).join('');
   var h = '<div class="result">';
+  if (cmp.mineCode && cmp.theirCode) h += '<p class="fp-pair" aria-hidden="true">' + fingerprint(cmp.mineCode) + ' ↔ ' + fingerprint(cmp.theirCode) + '</p>';
   if (res.n >= MIN_SHARED) {
     h += '<div class="score-row"><div class="score">' + Math.round(res.score * 100) + '<span>%</span></div>' +
          '<div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: res.n })) + '</div></div></div>' +
@@ -1127,18 +1290,23 @@ function resultHTML(res) {
     h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('tooFew', { n: res.n, min: MIN_SHARED })) + '</div></div>';
   }
   if (res.n) h += '<div class="strip" aria-hidden="true">' + stripCells + '</div>' + countsHTML(c);
+  // first-date topics: everything marked "ask me", then the biggest differences
   var rankOf = { deal: 0, bad: 1, half: 2, ok: 3 };
-  var talk = res.items.filter(function (it) { return it.a.m !== it.b.m; }).sort(function (x, y) {
-    return rankOf[x.status] - rankOf[y.status] || (WEIGHTS[y.a.imp] + WEIGHTS[y.b.imp]) - (WEIGHTS[x.a.imp] + WEIGHTS[x.b.imp]);
-  }).slice(0, 3);
-  if (talk.length) h += '<div class="talk"><div class="talk-title">' + esc(t('talkTitle')) + '</div><ol>' + talk.map(function (it) {
-    return '<li>' + esc(qText(it.q)) + '<span>' + esc(t('you')) + ': ' + esc(maskText(it.q, it.a.m)) + ' · ' + esc(t('them')) + ': ' + esc(maskText(it.q, it.b.m)) + '</span></li>';
-  }).join('') + '</ol><p class="small muted">' + esc(t('talkHint')) + '</p></div>';
+  var asked = res.items.filter(function (it) { return ((it.a.f | it.b.f) & 4) !== 0; });
+  var diffs = res.items.filter(function (it) { return it.a.m !== it.b.m && asked.indexOf(it) < 0; })
+    .sort(function (x, y) { return rankOf[x.status] - rankOf[y.status] || w(y) - w(x); });
+  var talk = asked.concat(diffs).slice(0, 3);
+  if (talk.length) h += talkBox(t('talkTitle'), talk, t('talkHint'));
+  var agree = res.items.filter(function (it) { return it.status === 'ok' && WEIGHTS[it.a.imp] > 0 && WEIGHTS[it.b.imp] > 0; })
+    .sort(function (x, y) { return w(y) - w(x) || ord(x.q) - ord(y.q); }).slice(0, 3);
+  if (agree.length) h += talkBox(t('agreeTitle'), agree, '');
   function qList(arr) { return arr.map(function (q) { return qText(q); }).join(', '); }
   if (res.skippedByB.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByThem', { list: qList(res.skippedByB) })) + '</div></div>';
   if (res.skippedByA.length) h += '<div class="note warn"><span class="ico" aria-hidden="true">!</span><div>' + esc(t('skippedByYou', { list: qList(res.skippedByA) })) + '</div></div>';
   if (res.unknown) h += '<p class="small muted">' + esc(t('unknownNote', { n: res.unknown })) + '</p>';
   if (res.n) h += '<p class="small muted">' + esc(t('legend')) + '</p>';
+  var mir = res.A && res.B ? mirrorRows(res.A, res.B) : '';
+  if (mir) h += '<div><span class="section-title"><i class="s-half"></i>' + esc(t('secMirror')) + '</span><div class="ci-list">' + mir + '</div></div>';
   var groups = [['deal', 'secDeal'], ['bad', 'secBad'], ['half', 'secHalf'], ['ok', 'secOk']];
   groups.forEach(function (g) {
     var its = res.items.filter(function (it) { return it.status === g[0]; });
@@ -1150,14 +1318,36 @@ function resultHTML(res) {
   });
   return h + '</div>';
 }
+function talkBox(title, list, hint) {
+  return '<div class="talk"><div class="talk-title">' + esc(title) + '</div><ol>' + list.map(function (it) {
+    return '<li>' + esc(qText(it.q)) + '<span>' + esc(t('you')) + ': ' + esc(withFlags(maskText(it.q, it.a.m), it.a.f)) + ' · ' +
+      esc(t('them')) + ': ' + esc(withFlags(maskText(it.q, it.b.m), it.b.f)) + '</span></li>';
+  }).join('') + '</ol>' + (hint ? '<p class="small muted">' + esc(hint) + '</p>' : '') + '</div>';
+}
+/* Mirrored pairs where someone answered the "him" and "her" version differently. */
+function mirrorRows(A, B) {
+  return ACTIVE.filter(function (q) { return q.mirrorOf && QBY.get(q.mirrorOf); }).map(function (q2) {
+    var q1 = QBY.get(q2.mirrorOf);
+    function pair(M) { var r1 = M.get(q1.id), r2 = M.get(q2.id); return r1 && r2 ? { r1: r1, r2: r2, diff: r1.m !== r2.m } : null; }
+    var pa = pair(A), pb = pair(B);
+    if (!(pa && pa.diff) && !(pb && pb.diff)) return '';
+    function row(who, pr) {
+      if (!pr) return '';
+      return '<span class="ci-who">' + esc(who) + '</span><span class="ci-ans">' + esc(maskText(q1, pr.r1.m)) + ' / ' + esc(maskText(q2, pr.r2.m)) + '</span>' +
+        (pr.diff ? '<span class="mark no" title="' + esc(t('mirrorDiff')) + '">≠</span>' : '<span class="mark yes">=</span>');
+    }
+    return '<div class="ci"><div class="ci-q">' + esc(qText(q1)) + '<br><span class="muted small">' + esc(qText(q2)) + '</span></div>' +
+      '<div class="ci-rows">' + row(t('you'), pa) + row(t('them'), pb) + '</div></div>';
+  }).join('');
+}
 function itemHTML(it) {
   var tags = '';
   if (it.dealA) tags += '<span class="tag">' + esc(t('yourDeal')) + '</span>';
   if (it.dealB) tags += '<span class="tag">' + esc(t('theirDeal')) + '</span>';
   return '<div class="ci"><div class="ci-q">' + esc(qText(it.q)) + '</div>' +
     '<div class="ci-rows">' +
-      '<span class="ci-who">' + esc(t('you')) + '</span><span class="ci-ans">' + esc(maskText(it.q, it.a.m)) + '</span>' + mark(it.bAccepts) +
-      '<span class="ci-who">' + esc(t('them')) + '</span><span class="ci-ans">' + esc(maskText(it.q, it.b.m)) + '</span>' + mark(it.aAccepts) +
+      '<span class="ci-who">' + esc(t('you')) + '</span><span class="ci-ans">' + esc(withFlags(maskText(it.q, it.a.m), it.a.f)) + '</span>' + mark(it.bAccepts) +
+      '<span class="ci-who">' + esc(t('them')) + '</span><span class="ci-ans">' + esc(withFlags(maskText(it.q, it.b.m), it.b.f)) + '</span>' + mark(it.aAccepts) +
     '</div>' + (tags ? '<div class="tags">' + tags + '</div>' : '') + '</div>';
 }
 function mark(ok) { return '<span class="mark ' + (ok ? 'yes' : 'no') + '" aria-label="' + (ok ? '✓' : '✗') + '">' + (ok ? '✓' : '✗') + '</span>'; }
@@ -1169,13 +1359,15 @@ function insideHTML(map) {
       var q = QBY.get(e[0]);
       if (!q) { unknown++; return; }
       if (q.retired || !e[1].m || (e[1].m >> nOpts(q))) return;
-      rows += answerRowHTML(q, e[1], false);
+      var extra = '';
+      if (q.mirrorOf && map.has(q.mirrorOf) && map.get(q.mirrorOf).m !== e[1].m) extra = '<div class="tags"><span class="tag">' + esc(t('mirrorDiff')) + '</span></div>';
+      rows += answerRowHTML(q, e[1], false, extra);
     });
-  return '<div class="result"><h3>' + esc(t('insideTitle')) + '</h3><p class="muted small">' + esc(t('insideMeta', { n: map.size })) + '</p>' +
+  return '<div class="result">' + (cmp.theirCode ? '<p class="fp" aria-hidden="true">' + fingerprint(cmp.theirCode) + '</p>' : '') +
+    '<h3>' + esc(t('insideTitle')) + '</h3><p class="muted small">' + esc(t('insideMeta', { n: map.size })) + '</p>' +
     (unknown ? '<p class="small muted">' + esc(t('unknownNote', { n: unknown })) + '</p>' : '') +
     '<div class="list">' + rows + '</div></div>';
 }
-
 /* ---------- Result image (drawn locally on a canvas, no answers shown) ---------- */
 function roundRect(g, x, y, w, h, r) {
   g.beginPath(); g.moveTo(x + r, y);
@@ -1263,8 +1455,30 @@ document.addEventListener('click', function (ev) {
   if (el.dataset.lang) { lang = el.dataset.lang; storeSet(STORE.lang, lang); render(); return; }
   if (el.dataset.go) { show(el.dataset.go); return; }
   var act = el.dataset.act; if (!act) return;
-  if (act === 'ans' || act === 'acc' || act === 'imp' || act === 'skip') { onQuizAction(el); return; }
-  if (act === 'mode') { quizMode = el.dataset.mode === 'all' ? 'all' : 'quick'; storeSet(STORE.mode, quizMode); show('quiz'); return; }
+  if (act === 'ans' || act === 'acc' || act === 'imp' || act === 'flag' || act === 'skip') { onQuizAction(el); return; }
+  if (act === 'mode') {
+    quizMode = el.dataset.mode === 'all' ? 'all' : el.dataset.mode === 'target' ? 'target' : 'quick';
+    if (quizMode !== 'target') storeSet(STORE.mode, quizMode);
+    show('quiz'); return;
+  }
+  if (act === 'goto-q') {
+    var gq = QBY.get(+el.dataset.id); if (!gq) return;
+    quizMode = 'all'; openPacks.add(gq.pack); show('quiz');
+    var gc = $('#v-quiz .q[data-id="' + gq.id + '"]'); if (gc && gc.scrollIntoView) gc.scrollIntoView({ block: 'center' });
+    return;
+  }
+  if (act === 'answer-theirs') {
+    var tp2 = parseCode(cmp.theirs); if (!tp2.map) return;
+    cmp.target = { ids: targetIds(tp2.map), code: tp2.code };
+    quizMode = 'target'; show('quiz'); return;
+  }
+  if (act === 'hist-open') {
+    cmp.view = 'one'; cmp.theirs = el.dataset.code; runCompare(); renderCompare();
+    var hr = $('#v-compare .result'); if (hr && hr.scrollIntoView) hr.scrollIntoView({ block: 'start' });
+    return;
+  }
+  if (act === 'hist-del') { hist = hist.filter(function (x) { return x.c !== el.dataset.code; }); histSave(); renderCompare(); return; }
+  if (act === 'hist-clear') { hist = []; histSave(); renderCompare(); return; }
   if (act === 'hotpost') {
     var hq = QBY.get(+el.closest('.q').dataset.id), mine = myCode();
     copy(mine ? t('hotPostCode', { q: qText(hq), link: shareLink(mine) }) : t('hotPost', { q: qText(hq), link: baseLink() }));
@@ -1273,7 +1487,13 @@ document.addEventListener('click', function (ev) {
   if (act === 'rm') { answers.delete(+el.dataset.id); saveDraft(); renderReview(); return; }
   if (act === 'create') {
     var pub = publicAnswers(); if (!pub.size) return;
-    var code = encode(pub); memCode = code; storeSet(STORE.code, code); cmp.mine = code; show('code'); return;
+    var code = encode(pub); memCode = code; storeSet(STORE.code, code); cmp.mine = code;
+    if (cmp.target) {   // came from someone's link: go straight to the comparison
+      cmp.theirs = cmp.target.code; cmp.view = 'one'; cmp.target = null;
+      quizMode = storeGet(STORE.mode) === 'all' ? 'all' : 'quick';
+      runCompare(); show('compare'); return;
+    }
+    show('code'); return;
   }
   if (act === 'copy-code') { copy(myCode(), $('#codeText')); return; }
   if (act === 'copy-link') { copy(shareLink(myCode()), $('#linkField')); return; }
@@ -1281,7 +1501,7 @@ document.addEventListener('click', function (ev) {
   if (act === 'edit') {
     if (!answers.size) {
       var d = decode(myCode());
-      if (d.map) d.map.forEach(function (r, id) { var q = QBY.get(id); if (q && !q.retired && r.m && !(r.m >> nOpts(q))) answers.set(id, { m: r.m, acc: r.acc, imp: r.imp, t: true }); });
+      if (d.map) d.map.forEach(function (r, id) { var q = QBY.get(id); if (q && !q.retired && r.m && !(r.m >> nOpts(q))) answers.set(id, { m: r.m, acc: r.acc, imp: r.imp, f: r.f | 0, t: true }); });
       saveDraft();
     }
     show('quiz'); return;
@@ -1290,7 +1510,8 @@ document.addEventListener('click', function (ev) {
   if (act === 'cmpview') { cmp.view = el.dataset.view === 'many' ? 'many' : 'one'; cmp.error = ''; renderCompare(); return; }
   if (act === 'many') { runMany(); renderCompare(); return; }
   if (act === 'many-open') {
-    cmp.view = 'one'; cmp.theirs = el.dataset.code; runCompare(); renderCompare();
+    var me = (cmp.many || []).filter(function (x) { return x.code === el.dataset.code; })[0];
+    cmp.view = 'one'; cmp.theirs = el.dataset.code; cmp.theirLabel = me ? me.label : ''; runCompare(); renderCompare();
     var rr = $('#v-compare .result'); if (rr && rr.scrollIntoView) rr.scrollIntoView({ block: 'start' });
     return;
   }
@@ -1317,6 +1538,10 @@ document.addEventListener('input', function (ev) {
   if (ev.target.id === 'theirs') cmp.theirs = ev.target.value;
   if (ev.target.id === 'mine') cmp.mine = ev.target.value;
   if (ev.target.id === 'manyText') cmp.manyText = ev.target.value;
+  if (ev.target.classList && ev.target.classList.contains('hist-label')) {
+    var hx = hist.filter(function (x) { return x.c === ev.target.dataset.code; })[0];
+    if (hx) { hx.l = ev.target.value.slice(0, 40); histSave(); }
+  }
 });
 document.addEventListener('toggle', function (ev) {
   var d = ev.target;
@@ -1340,6 +1565,7 @@ window.addEventListener('appinstalled', function () { installEvt = null; renderC
 /* ================= Start ================= */
 loadData();
 loadDraft();
+histLoad();
 quizMode = storeGet(STORE.mode) === 'all' ? 'all' : 'quick';
 (function pickLang() {
   var saved = storeGet(STORE.lang);
@@ -1350,7 +1576,7 @@ quizMode = storeGet(STORE.mode) === 'all' ? 'all' : 'quick';
 if (!readHash()) show('home');
 
 /* exposed for testing and for anyone curious in the browser console */
-window.Paircode = { encode: encode, decode: decode, parseCode: parseCode, compareMaps: compareMaps, extractCodes: extractCodes, crc8: crc8, errors: errors, questions: ACTIVE, weights: WEIGHTS };
+window.Paircode = { encode: encode, decode: decode, parseCode: parseCode, compareMaps: compareMaps, extractCodes: extractCodes, fingerprint: fingerprint, crc8: crc8, errors: errors, questions: ACTIVE, weights: WEIGHTS };
 })();
 </script>
 <script>
