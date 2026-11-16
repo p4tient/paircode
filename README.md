@@ -2,6 +2,8 @@
 
 Answer dating questions, get a short code, post it. Anyone can compare their code with yours, question by question, and both people see the same result. Interface in Ukrainian, Polish and English.
 
+It checks whether your lives fit: kids, money, habits, values. Photos already tell you if you like someone, and only meeting tells you if there is chemistry. Paircode sits between the two.
+
 Live: https://p4tient.github.io/paircode/
 
 `index.html` (the app) and `questions.js` (the question list) do the work. Everything else is fonts, icons and offline support. No server, no build step, no accounts.
@@ -74,6 +76,10 @@ A question looks like this:
 - `accept: { en, uk, pl }` replaces the "partner answers you'd accept" label.
 - `mirrorOf: 67` marks the "for her" version of question 67's "for him" rule.
 - `added: "2026-11-16"` shows a "New" badge for two weeks; the newest hot take also appears on the home screen.
+
+## How changes ship
+
+Changes arrive as pull requests with a list of what changed and what to test. Merging one publishes it. Anyone can open a pull request, or suggest a question with the footer button.
 
 ## Scoring
 

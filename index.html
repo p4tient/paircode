@@ -102,6 +102,12 @@ h2 { font: 600 22px/1.25 var(--display); letter-spacing: -0.01em; }
 h3 { font: 600 16px/1.35 var(--body); }
 p { margin: 0; }
 .lead { font-size: 17px; color: var(--muted); max-width: 60ch; }
+.filters { list-style: none; margin: 4px 0 0; padding: 0; font-size: 15px; color: var(--muted); }
+.filters li { padding: 2px 0 2px 14px; position: relative; }
+.filters li::before { content: ''; position: absolute; left: 0; top: .7em; width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.filters li:nth-child(2) { color: var(--ink); font-weight: 600; }
+.filters li:nth-child(2)::before { background: var(--accent); }
+.fit-note { margin: 8px 0 0; font-size: 14px; color: var(--muted); max-width: 60ch; }
 .muted { color: var(--muted); }
 .small { font-size: 14px; }
 
@@ -322,6 +328,8 @@ var UI = {
   en: {
     navQuestions: 'Questions', navMyCode: 'My code', navCompare: 'Compare',
     heroTitle: 'Compare before you meet.',
+    filters: ['Photos show if you like them.', 'Paircode shows if your lives fit.', 'Meeting shows if there is chemistry.'],
+    fitNote: 'This is how well your lives fit: kids, money, habits. Chemistry only shows up in person.',
     heroLead: "Answer the questions you're comfortable with, get a short code, and post it. Anyone can compare their code with yours, question by question. Both people see the same result.",
     step1: 'Answer what you want. Every question can be skipped.',
     step2: 'Get your code and link.',
@@ -386,7 +394,7 @@ var UI = {
     manyFound: '{n} codes found', manyNone: 'No valid codes found in that text.', needMine: 'Add your own code first.',
     details: 'Details', sharedShort: '{n} shared', dealShort: '{n} dealbreakers',
     copyResult: 'Copy result', makeImage: 'Make an image',
-    resultText: 'Paircode: {pct}% match on {n} shared questions.\nCompare with me: {link}',
+    resultText: 'Paircode: {pct}% match on {n} shared questions (life fit, not chemistry).\nCompare with me: {link}',
     imageHint: 'Long-press or right-click the image to save it.',
     suggestQ: 'Suggest a question', installApp: 'Install app',
     issueTitle: 'Question idea: ',
@@ -402,6 +410,8 @@ var UI = {
   uk: {
     navQuestions: 'Питання', navMyCode: 'Мій код', navCompare: 'Порівняти',
     heroTitle: 'Порівняйте до зустрічі.',
+    filters: ['Фото показує, чи подобається людина.', 'Paircode показує, чи підходять ваші життя.', 'Зустріч показує, чи є хімія.'],
+    fitNote: 'Це про те, чи підходять ваші життя: діти, гроші, звички. Хімію видно тільки наживо.',
     heroLead: 'Відповідай на питання, на які готовий(-а), отримай короткий код і виклади його. Будь-хто може порівняти свій код з твоїм, питання за питанням. Обоє бачать однаковий результат.',
     step1: 'Відповідай, на що хочеш. Будь-яке питання можна пропустити.',
     step2: 'Отримай код і посилання.',
@@ -466,7 +476,7 @@ var UI = {
     manyFound: 'Знайдено кодів: {n}', manyNone: 'У цьому тексті немає дійсних кодів.', needMine: 'Спершу додай свій код.',
     details: 'Детальніше', sharedShort: 'спільних: {n}', dealShort: 'принципових: {n}',
     copyResult: 'Скопіювати результат', makeImage: 'Зробити картинку',
-    resultText: 'Paircode: збіг {pct}% за {n} спільними питаннями.\nПорівняй зі мною: {link}',
+    resultText: 'Paircode: збіг {pct}% за {n} спільними питаннями (сумісність життя, не хімія).\nПорівняй зі мною: {link}',
     imageHint: 'Утримуй або клацни правою кнопкою, щоб зберегти.',
     suggestQ: 'Запропонувати питання', installApp: 'Встановити застосунок',
     issueTitle: 'Ідея питання: ',
@@ -482,6 +492,8 @@ var UI = {
   pl: {
     navQuestions: 'Pytania', navMyCode: 'Mój kod', navCompare: 'Porównaj',
     heroTitle: 'Porównajcie się przed spotkaniem.',
+    filters: ['Zdjęcia pokazują, czy ktoś ci się podoba.', 'Paircode pokazuje, czy pasujecie do siebie.', 'Spotkanie pokazuje, czy jest chemia.'],
+    fitNote: 'To pokazuje, czy pasują wasze życia: dzieci, pieniądze, nawyki. Chemię widać tylko na żywo.',
     heroLead: 'Odpowiedz na pytania, na które chcesz, dostań krótki kod i opublikuj go. Każdy może porównać swój kod z twoim, pytanie po pytaniu. Obie osoby widzą ten sam wynik.',
     step1: 'Odpowiadaj, na co chcesz. Każde pytanie można pominąć.',
     step2: 'Dostań kod i link.',
@@ -546,7 +558,7 @@ var UI = {
     manyFound: 'Znalezione kody: {n}', manyNone: 'W tym tekście nie ma prawidłowych kodów.', needMine: 'Najpierw dodaj swój kod.',
     details: 'Szczegóły', sharedShort: 'wspólnych: {n}', dealShort: 'warunków: {n}',
     copyResult: 'Kopiuj wynik', makeImage: 'Zrób obrazek',
-    resultText: 'Paircode: {pct}% dopasowania na {n} wspólnych pytaniach.\nPorównaj się ze mną: {link}',
+    resultText: 'Paircode: {pct}% dopasowania na {n} wspólnych pytaniach (zgodność stylu życia, nie chemia).\nPorównaj się ze mną: {link}',
     imageHint: 'Przytrzymaj lub kliknij prawym przyciskiem, aby zapisać.',
     suggestQ: 'Zaproponuj pytanie', installApp: 'Zainstaluj aplikację',
     issueTitle: 'Pomysł na pytanie: ',
@@ -940,6 +952,7 @@ function renderHome() {
     '<div class="hero">' +
       '<h1>' + esc(t('heroTitle')) + '</h1>' +
       '<p class="lead">' + esc(t('heroLead')) + '</p>' +
+      '<ul class="filters">' + t('filters').map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
       '<div class="actions">' +
         (n ? '<button type="button" class="btn primary" data-go="quiz">' + esc(t('cont', { n: n })) + '</button>'
            : (quickCount() ? '<button type="button" class="btn primary" data-act="mode" data-mode="quick">' + esc(t('quickStart', { n: quickCount() })) + '</button>' : '') +
@@ -956,6 +969,7 @@ function renderHome() {
     '<div class="sample">' +
       '<span class="pill">' + esc(t('exampleLabel')) + '</span>' +
       '<div class="score-row"><div class="score">78<span>%</span></div><div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: 14 })) + '</div></div></div>' +
+      '<p class="fit-note">' + esc(t('fitNote')) + '</p>' +
       '<div class="strip" aria-hidden="true">' + sample.map(function (s) { return '<span class="cell s-' + s + '"></span>'; }).join('') + '</div>' +
       countsHTML({ ok: 9, half: 3, bad: 2, deal: 0 }) +
     '</div>';
@@ -1284,6 +1298,7 @@ function resultHTML(res) {
   if (res.n >= MIN_SHARED) {
     h += '<div class="score-row"><div class="score">' + Math.round(res.score * 100) + '<span>%</span></div>' +
          '<div><div class="score-label">' + esc(t('matchLabel')) + '</div><div class="muted small">' + esc(t('comparedOn', { n: res.n })) + '</div></div></div>' +
+         '<p class="fit-note">' + esc(t('fitNote')) + '</p>' +
          '<div class="actions"><button type="button" class="btn small ghost" data-act="copy-result">' + esc(t('copyResult')) + '</button>' +
          '<button type="button" class="btn small ghost" data-act="make-image">' + esc(t('makeImage')) + '</button></div><div id="resImg"></div>';
   } else {
